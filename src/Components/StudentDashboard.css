@@ -1,0 +1,471 @@
+:root {
+  --primary-gradient: linear-gradient(135deg, #6a1b9a, #4a148c);
+  --secondary-gradient: linear-gradient(135deg, #00bcd4, #006064);
+  --accent-gradient: linear-gradient(135deg, #ff4081, #c51162);
+  --success-gradient: linear-gradient(135deg, #4caf50, #2e7d32);
+  --warning-gradient: linear-gradient(135deg, #ff9800, #ef6c00);
+  --card-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+  --hover-shadow: 0px 15px 35px rgba(0, 0, 0, 0.15);
+  --border-radius: 16px;
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* สไตล์พื้นฐาน */
+.student-dashboard {
+  min-height: 100vh;
+  background: #f9f9f9;
+  font-family: 'Prompt', sans-serif;
+  color: #333;
+  padding-bottom: 2rem;
+}
+
+/* แถบนำทาง */
+.dashboard-nav {
+  background: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-left h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.nav-right {
+  display: flex;
+  gap: 15px;
+}
+
+/* ปุ่มในแถบนำทาง */
+.history-btn, .logout-btn {
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  font-family: 'Prompt', sans-serif;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.history-btn {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+.logout-btn {
+  background: var(--accent-gradient);
+  color: white;
+}
+
+.history-btn:hover, .logout-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ส่วนเนื้อหา */
+.dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* หัวข้อส่วน */
+.section-title {
+  position: relative;
+  padding-left: 15px;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background: var(--primary-gradient);
+  border-radius: 5px;
+}
+
+/* คำทักทาย */
+.welcome-section {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-text h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.welcome-text p {
+  margin: 0.5rem 0 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  box-shadow: 0 5px 15px rgba(106, 27, 154, 0.3);
+}
+
+/* การ์ดเกม */
+.games-section {
+  margin-bottom: 2rem;
+}
+
+.game-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.game-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.game-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: var(--primary-gradient);
+}
+
+.game-card[data-game="matching-game"]::after {
+  background: var(--primary-gradient);
+}
+
+.game-card[data-game="coding-game"]::after {
+  background: var(--secondary-gradient);
+}
+
+.game-card[data-game="bridge-game"]::after {
+  background: var(--warning-gradient);
+}
+
+.game-card[data-game="math-puzzle"]::after {
+  background: var(--success-gradient);
+}
+
+.game-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--hover-shadow);
+}
+
+.game-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+
+.game-card[data-game="matching-game"] .game-icon {
+  color: #6a1b9a;
+}
+
+.game-card[data-game="coding-game"] .game-icon {
+  color: #00bcd4;
+}
+
+.game-card[data-game="bridge-game"] .game-icon {
+  color: #ff9800;
+}
+
+.game-card[data-game="math-puzzle"] .game-icon {
+  color: #4caf50;
+}
+
+.game-card:hover .game-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.game-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.game-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.play-button {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-family: 'Prompt', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2);
+}
+
+.game-card[data-game="matching-game"] .play-button {
+  background: var(--primary-gradient);
+  box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2);
+}
+
+.game-card[data-game="coding-game"] .play-button {
+  background: var(--secondary-gradient);
+  box-shadow: 0 4px 10px rgba(0, 188, 212, 0.2);
+}
+
+.game-card[data-game="bridge-game"] .play-button {
+  background: var(--warning-gradient);
+  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2);
+}
+
+.game-card[data-game="math-puzzle"] .play-button {
+  background: var(--success-gradient);
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+}
+
+.play-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(106, 27, 154, 0.3);
+}
+
+/* ความก้าวหน้า */
+.progress-snapshot {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+.progress-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.progress-card {
+  background: rgba(106, 27, 154, 0.05);
+  border-radius: 12px;
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: var(--transition);
+}
+
+.progress-card:hover {
+  background: rgba(106, 27, 154, 0.1);
+  transform: translateY(-3px);
+}
+
+.progress-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.progress-info h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.progress-info p {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* กำหนดสีที่แตกต่างกันสำหรับแต่ละเกม */
+.progress-card:nth-child(1) .progress-bar-fill {
+  background: linear-gradient(90deg, #6a1b9a, #9c27b0);
+}
+
+.progress-card:nth-child(2) .progress-bar-fill {
+  background: linear-gradient(90deg, #00bcd4, #006064);
+}
+
+.progress-card:nth-child(3) .progress-bar-fill {
+  background: linear-gradient(90deg, #ff9800, #ef6c00);
+}
+
+.progress-card:nth-child(4) .progress-bar-fill {
+  background: linear-gradient(90deg, #4caf50, #2e7d32);
+}
+
+/* สไตล์อนิเมชัน */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.game-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .dashboard-content {
+    padding: 1.5rem;
+  }
+  
+  .welcome-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.2rem;
+  }
+  
+  .welcome-text {
+    margin-bottom: 1rem;
+  }
+  
+  .profile-avatar {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-nav {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .nav-left {
+    margin-bottom: 1rem;
+  }
+  
+  .nav-right {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .game-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .progress-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .student-dashboard {
+    background: #1a1a1a;
+    color: #f0f0f0;
+  }
+  
+  .dashboard-nav, .welcome-section, .game-card, .progress-snapshot, .progress-card {
+    background: #252525;
+    color: #f0f0f0;
+  }
+  
+  .game-card h3 {
+    color: #f0f0f0;
+  }
+  
+  .game-card p, .welcome-text p, .progress-info p {
+    color: #aaa;
+  }
+  
+  .section-title {
+    color: #f0f0f0;
+  }
+  
+  .progress-card {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .progress-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .progress-bar {
+    background: #444;
+  }
+}
+
+/* เพิ่มสไตล์สำหรับข้อมูลด่าน */
+.level-info {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 2px 0 5px;
+}
+
+/* ซ่อนการ์ดทั้งหมด */
+.dashboard-cards {
+  display: none;
+}

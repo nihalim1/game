@@ -1,0 +1,393 @@
+.coding-game {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Prompt', sans-serif;
+}
+
+.game-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #5c258d, #4389a2);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.game-header h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.level-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.level-indicator {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.score-display {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.level-description {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 10px 15px;
+    border-radius: 10px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.game-board {
+    width: 400px; /* 8 cells * 50px */
+    height: 400px;
+    background-color: #f8f9fa;
+    border: 3px solid #5c258d;
+    position: relative;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.grid-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.grid-cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.grid-cell.path {
+    background: linear-gradient(45deg, #e3f2fd 25%, #bbdefb 25%, #bbdefb 50%, #e3f2fd 50%, #e3f2fd 75%, #bbdefb 75%);
+    background-size: 20px 20px;
+    animation: pathAnimation 2s linear infinite;
+    border: 1px solid #90caf9;
+}
+
+.grid-cell.empty {
+    background-color: #f5f5f5;
+}
+
+.grid-cell.obstacle {
+    background-color: rgba(244, 67, 54, 0.7);
+    border: 1px solid #e53935;
+    position: relative;
+}
+
+.grid-cell.obstacle::before {
+    content: '⚠️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}
+
+@keyframes pathAnimation {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 40px 40px;
+    }
+}
+
+.character {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    transition: all 0.5s ease;
+    z-index: 2;
+}
+
+.character::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    z-index: -1;
+    box-shadow: 0 0 10px rgba(106, 27, 154, 0.5);
+}
+
+.target {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    z-index: 1;
+}
+
+.target::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 235, 59, 0.3);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+}
+
+.command-panel {
+    flex: 1;
+    background: linear-gradient(to bottom, #f5f7fa, #e4efe9);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+}
+
+.level-controls {
+    margin-bottom: 15px;
+}
+
+.hint-button {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.hint-button:hover {
+    background-color: #ffb300;
+    transform: scale(1.05);
+}
+
+.hint-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-top: 10px;
+    color: #856404;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.command-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.middle-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.command-buttons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 100px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #5c258d;
+    border-radius: 8px;
+    background: white;
+    color: #5c258d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Prompt', sans-serif;
+}
+
+.command-buttons button:hover {
+    background: #5c258d;
+    color: white;
+    transform: scale(1.05);
+}
+
+.command-buttons button:disabled {
+    background: #ccc;
+    border-color: #999;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.direction-btn {
+    width: 120px;
+}
+
+.command-list {
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.command-list-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #5c258d;
+    border-bottom: 2px solid #5c258d;
+    padding-bottom: 5px;
+}
+
+.command-item {
+    padding: 8px 10px;
+    background-color: #e1bee7;
+    margin: 5px 0;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.command-item:hover {
+    transform: translateX(5px);
+    background-color: #ce93d8;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.run-button,
+.reset-button,
+.home-button {
+    flex: 1;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Prompt', sans-serif;
+}
+
+.run-button {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 8px rgba(46, 125, 50, 0.3);
+}
+
+.reset-button {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 8px rgba(245, 124, 0, 0.3);
+}
+
+.home-button {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+}
+
+.run-button:disabled,
+.reset-button:disabled {
+    background: #ccc;
+    color: #666;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.run-button:hover:not(:disabled),
+.reset-button:hover:not(:disabled),
+.home-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        flex-direction: column;
+    }
+    
+    .game-board {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1/1;
+    }
+    
+    .grid-cell {
+        width: 100%;
+        height: auto;
+    }
+    
+    .command-buttons button {
+        min-width: 80px;
+        font-size: 14px;
+    }
+    
+    .control-buttons {
+        flex-direction: column;
+    }
+}

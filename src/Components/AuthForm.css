@@ -1,0 +1,260 @@
+/* Main container */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    font-family: 'Kanit', sans-serif;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated background elements */
+.auth-container::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 15s infinite linear;
+    top: 0;
+    left: 0;
+}
+
+@keyframes float {
+    0% { transform: rotate(0deg) translate(0, 0); }
+    50% { transform: rotate(180deg) translate(50px, 50px); }
+    100% { transform: rotate(360deg) translate(0, 0); }
+}
+
+/* Form container */
+.auth-box {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Header styles */
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    color: #2962ff;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.auth-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Form group styles */
+.form-group {
+    margin-bottom: 1.2rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    color: #333;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e1e1e1;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-group input:focus {
+    border-color: #2962ff;
+    box-shadow: 0 0 0 4px rgba(41, 98, 255, 0.1);
+    outline: none;
+}
+
+.form-group input:focus + label {
+    color: #2962ff;
+}
+
+/* Fun placeholder animations */
+.form-group input::placeholder {
+    color: #aaa;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.form-group input:focus::placeholder {
+    opacity: 0;
+    transform: translateX(5px);
+}
+
+/* Submit button */
+.auth-button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(45deg, #2962ff, #3d5afe);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+}
+
+.auth-button:active {
+    transform: translateY(0);
+}
+
+/* Switch mode button */
+.switch-button {
+    background: none;
+    border: none;
+    color: #2962ff;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 1.5rem auto 0;
+}
+
+.switch-button:hover {
+    background: rgba(41, 98, 255, 0.1);
+    transform: scale(1.02);
+}
+
+/* Message styles */
+.message {
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+.success-message {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+/* Loading state */
+.auth-button:disabled {
+    background: linear-gradient(45deg, #90caf9, #42a5f5);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form switch section */
+.form-switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .auth-box {
+        padding: 2rem;
+        margin: 1rem;
+    }
+
+    .auth-header h2 {
+        font-size: 1.75rem;
+    }
+
+    .form-group input {
+        padding: 0.7rem 0.9rem;
+    }
+}
+
+/* Fun hover effects for inputs */
+.form-group input:hover {
+    transform: translateX(2px);
+    border-color: #90caf9;
+}
+
+/* Additional animations for form groups */
+.form-group {
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Staggered animation for form groups */
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }

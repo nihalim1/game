@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/kong/web-game/static/css/main.c8710208.css",
+    "main.js": "/kong/web-game/static/js/main.12c02221.js",
+    "static/js/453.1e307dc8.chunk.js": "/kong/web-game/static/js/453.1e307dc8.chunk.js",
+    "index.html": "/kong/web-game/index.html",
+    "main.c8710208.css.map": "/kong/web-game/static/css/main.c8710208.css.map",
+    "main.12c02221.js.map": "/kong/web-game/static/js/main.12c02221.js.map",
+    "453.1e307dc8.chunk.js.map": "/kong/web-game/static/js/453.1e307dc8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c8710208.css",
+    "static/js/main.12c02221.js"
+  ]
+}

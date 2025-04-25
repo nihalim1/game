@@ -1,0 +1,441 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #4361ee;
+  --primary-light: #4895ef;
+  --primary-dark: #3a0ca3;
+  --secondary-color: #f72585;
+  --secondary-light: #ff80a5;
+  --text-dark: #212136;
+  --text-light: #6c757d;
+  --background-light: #f8f9fa;
+  --white: #ffffff;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+  --error-color: #e63946;
+  --success-color: #2a9d8f;
+}
+
+.student-auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  font-family: 'Prompt', sans-serif;
+  background-color: var(--background-light);
+}
+
+/* รูปร่างพื้นหลังแบบเดียวกับหน้า Home */
+.home-bg-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(58, 12, 163, 0.1));
+}
+
+.shape-1 {
+  width: 300px;
+  height: 300px;
+  top: -150px;
+  right: -100px;
+  animation: float 8s infinite ease-in-out;
+}
+
+.shape-2 {
+  width: 200px;
+  height: 200px;
+  bottom: -100px;
+  left: -50px;
+  animation: float 6s infinite ease-in-out reverse;
+}
+
+.shape-3 {
+  width: 150px;
+  height: 150px;
+  top: 40%;
+  left: 10%;
+  animation: float 10s infinite ease-in-out;
+}
+
+.shape-4 {
+  width: 80px;
+  height: 80px;
+  bottom: 30%;
+  right: 10%;
+  animation: float 7s infinite ease-in-out 2s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+/* เนื้อหาหลัก */
+.student-auth-content {
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* โลโก้ */
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.logo-icon {
+  font-size: 2.5rem;
+  margin-right: 15px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+.logo-container h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container h1 span {
+  color: #e63946;
+  font-weight: 900;
+}
+
+/* กล่องฟอร์มล็อกอิน/ลงทะเบียน */
+.student-auth-box {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius);
+  padding: 35px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 20px;
+}
+
+.student-auth-box h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.welcome-text {
+  margin-bottom: 25px;
+}
+
+.welcome-text p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* ข้อความแจ้งเตือน */
+.message-box {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.message-box.success {
+  background-color: rgba(42, 157, 143, 0.1);
+  color: var(--success-color);
+  border-left: 4px solid var(--success-color);
+}
+
+.message-box.error {
+  background-color: rgba(230, 57, 70, 0.1);
+  color: var(--error-color);
+  border-left: 4px solid var(--error-color);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ฟอร์ม */
+.student-form {
+  text-align: left;
+}
+
+.form-row {
+  margin-bottom: 20px;
+}
+
+.form-row.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.student-form-group {
+  margin-bottom: 20px;
+}
+
+.student-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 1.05rem;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+}
+
+.student-form-group input {
+  width: 100%;
+  padding: 14px 15px 14px 45px;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  font-size: 1.05rem;
+  color: var(--text-dark);
+  transition: var(--transition);
+  font-family: 'Prompt', sans-serif;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.input-with-icon input {
+  padding-left: 45px;
+}
+
+.student-form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.student-form-group input::placeholder {
+  color: #adb5bd;
+}
+
+/* ปุ่มส่งฟอร์ม */
+.student-submit-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 10px;
+  box-shadow: 0 4px 10px rgba(58, 12, 163, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  font-family: 'Prompt', sans-serif;
+}
+
+.student-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(58, 12, 163, 0.3);
+}
+
+.student-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ปุ่มเปลี่ยนโหมด */
+.auth-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.student-switch-mode, .go-back-btn {
+  flex: 1;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  color: var(--text-dark);
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+  font-family: 'Prompt', sans-serif;
+}
+
+.student-switch-mode:hover:not(:disabled),
+.go-back-btn:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.student-switch-mode:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.go-back-btn {
+  background-color: white;
+  border: 1px solid var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.go-back-btn:hover {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+/* ส่วนท้าย */
+.footer {
+  margin-top: 20px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-dark: #f8f9fa;
+    --text-light: #adb5bd;
+    --background-light: #121212;
+    --white: #1e1e1e;
+  }
+  
+  .student-auth-box {
+    background: rgba(30, 30, 30, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .logo-container h1 {
+    color: #e6e6fa;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .message-box.success {
+    background-color: rgba(42, 157, 143, 0.2);
+  }
+  
+  .message-box.error {
+    background-color: rgba(230, 57, 70, 0.2);
+  }
+  
+  .student-form-group input {
+    background-color: rgba(48, 48, 48, 0.8);
+    border-color: #333;
+    color: #e0e0e0;
+  }
+  
+  .student-form-group input::placeholder {
+    color: #6c757d;
+  }
+  
+  .student-switch-mode, .go-back-btn {
+    background: #262626;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+  
+  .student-switch-mode:hover:not(:disabled),
+  .go-back-btn:hover {
+    background: #333;
+  }
+  
+  .go-back-btn {
+    background: rgba(67, 97, 238, 0.2);
+    color: #90caf9;
+  }
+  
+  .go-back-btn:hover {
+    background: rgba(67, 97, 238, 0.4);
+  }
+}
+
+/* ปรับสำหรับมือถือ */
+@media (max-width: 768px) {
+  .student-auth-box {
+    padding: 25px 20px;
+  }
+  
+  .form-row.two-columns {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .auth-actions {
+    flex-direction: column;
+  }
+  
+  .logo-container h1 {
+    font-size: 1.8rem;
+  }
+  
+  .student-auth-box h2 {
+    font-size: 1.6rem;
+  }
+  
+  .welcome-text p {
+    font-size: 1rem;
+  }
+}

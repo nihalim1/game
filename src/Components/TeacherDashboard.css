@@ -1,0 +1,121 @@
+.teacher-dashboard {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  font-family: 'Kanit', sans-serif;
+}
+
+.dashboard-nav {
+  background: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-brand {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2962ff;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-user span {
+  color: #333;
+}
+
+.logout-btn {
+  padding: 0.5rem 1rem;
+  background: #ff3d00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #d32f00;
+  transform: translateY(-1px);
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-content h1 {
+  color: #333;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h2 {
+  color: #2962ff;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.dashboard-card p {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.card-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: #2962ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-btn:hover {
+  background: #1565c0;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .dashboard-nav {
+    padding: 1rem;
+  }
+
+  .nav-brand {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-content {
+    padding: 1rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+} 

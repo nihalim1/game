@@ -1,0 +1,302 @@
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 380px;
+    font-family: 'Prompt', sans-serif;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 18px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-left: 5px solid transparent;
+}
+
+.notification-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
+
+.notification-item:hover {
+    transform: translateY(-3px) translateX(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.notification-icon {
+    margin-right: 15px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h4 {
+    margin: 0 0 5px 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.notification-content p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #666;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+    margin-left: 8px;
+    margin-top: -3px;
+}
+
+.notification-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+    transform: rotate(90deg);
+}
+
+/* ประเภทการแจ้งเตือน */
+.notification-item.success {
+    background: linear-gradient(to right, #f1f8e9, #ffffff);
+    border-left-color: #4caf50;
+}
+
+.notification-item.success .notification-icon {
+    color: #2e7d32;
+    background: #e8f5e9;
+}
+
+.notification-item.success h4 {
+    color: #2e7d32;
+}
+
+.notification-item.error {
+    background: linear-gradient(to right, #fef5f5, #ffffff);
+    border-left-color: #f44336;
+}
+
+.notification-item.error .notification-icon {
+    color: #d32f2f;
+    background: #ffebee;
+}
+
+.notification-item.error h4 {
+    color: #d32f2f;
+}
+
+.notification-item.warning {
+    background: linear-gradient(to right, #fff8e1, #ffffff);
+    border-left-color: #ff9800;
+}
+
+.notification-item.warning .notification-icon {
+    color: #ef6c00;
+    background: #fff3e0;
+}
+
+.notification-item.warning h4 {
+    color: #ef6c00;
+}
+
+.notification-item.info {
+    background: linear-gradient(to right, #e3f2fd, #ffffff);
+    border-left-color: #2196f3;
+}
+
+.notification-item.info .notification-icon {
+    color: #1565c0;
+    background: #e3f2fd;
+}
+
+.notification-item.info h4 {
+    color: #1565c0;
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-item.fade-out {
+    animation: fadeOut 0.3s forwards;
+    pointer-events: none;
+}
+
+@keyframes fadeOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Progress bar ที่จะหายไปอัตโนมัติ */
+.notification-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    animation: progress 3s linear forwards;
+}
+
+@keyframes progress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .notification-item {
+        background: #1a1a2e;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .notification-content h4 {
+        color: #e0e0e0;
+    }
+    
+    .notification-content p {
+        color: #b0b0b0;
+    }
+    
+    .notification-close {
+        color: #b0b0b0;
+    }
+    
+    .notification-item.success {
+        background: linear-gradient(to right, rgba(46, 125, 50, 0.2), #1a1a2e);
+    }
+    
+    .notification-item.success .notification-icon {
+        background: rgba(46, 125, 50, 0.2);
+        color: #81c784;
+    }
+    
+    .notification-item.success h4 {
+        color: #81c784;
+    }
+    
+    .notification-item.error {
+        background: linear-gradient(to right, rgba(211, 47, 47, 0.2), #1a1a2e);
+    }
+    
+    .notification-item.error .notification-icon {
+        background: rgba(211, 47, 47, 0.2);
+        color: #e57373;
+    }
+    
+    .notification-item.error h4 {
+        color: #e57373;
+    }
+    
+    .notification-item.warning {
+        background: linear-gradient(to right, rgba(239, 108, 0, 0.2), #1a1a2e);
+    }
+    
+    .notification-item.warning .notification-icon {
+        background: rgba(239, 108, 0, 0.2);
+        color: #ffb74d;
+    }
+    
+    .notification-item.warning h4 {
+        color: #ffb74d;
+    }
+    
+    .notification-item.info {
+        background: linear-gradient(to right, rgba(21, 101, 192, 0.2), #1a1a2e);
+    }
+    
+    .notification-item.info .notification-icon {
+        background: rgba(21, 101, 192, 0.2);
+        color: #64b5f6;
+    }
+    
+    .notification-item.info h4 {
+        color: #64b5f6;
+    }
+    
+    .notification-item::after {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* ปรับขนาดสำหรับอุปกรณ์มือถือ */
+@media (max-width: 480px) {
+    .notification-container {
+        left: 20px;
+        right: 20px;
+        top: 10px;
+        max-width: none;
+    }
+    
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        font-size: 20px;
+    }
+    
+    .notification-content h4 {
+        font-size: 15px;
+    }
+    
+    .notification-content p {
+        font-size: 14px;
+    }
+}

@@ -1,0 +1,653 @@
+.math-puzzle {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.score, .timer {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 8px 15px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.score {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.timer {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+}
+
+.timer-warning {
+    background-color: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffe0b2;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.puzzle-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.level-info {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e0e0;
+}
+
+.question {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a237e;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    padding: 15px 20px;
+    background-color: #f5f7ff;
+    border-radius: 10px;
+    border-left: 5px solid #3f51b5;
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.question span.math-number {
+    color: #f44336;
+    font-weight: 700;
+    background-color: #ffebee;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+.question span.math-formula {
+    font-family: 'Courier New', monospace;
+    background-color: #e8f5e9;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #c8e6c9;
+    color: #2e7d32;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.game-header h1 {
+    font-size: 2rem;
+    color: #303f9f;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #9fa8da;
+}
+
+.answer-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.answer-form input {
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 15px 20px;
+    border: 2px solid #3f51b5;
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    color: #303f9f;
+    letter-spacing: 1px;
+}
+
+.answer-form input:focus {
+    outline: none;
+    border-color: #1a237e;
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.3);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1em;
+}
+
+.button-group button[type="submit"] {
+    background: #6a1b9a;
+    color: white;
+}
+
+.button-group button[type="button"] {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.button-group button:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.button-group button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .math-puzzle {
+        padding: 10px;
+    }
+
+    .question {
+        font-size: 1.3rem;
+        padding: 12px 15px;
+    }
+
+    .game-header h1 {
+        font-size: 1.6rem;
+        padding: 12px;
+    }
+
+    .answer-form input {
+        font-size: 1.2rem;
+        padding: 12px 15px;
+    }
+
+    .score, .timer {
+        font-size: 1rem;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .timer, .score {
+        font-size: 1rem;
+        padding: 6px 12px;
+    }
+
+    .star {
+        font-size: 20px;
+    }
+    
+    .star-rating {
+        padding: 6px 10px;
+    }
+}
+
+/* เพิ่มสไตล์สำหรับการโหลดและข้อผิดพลาด */
+.math-puzzle-loading,
+.math-puzzle-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #6a1b9a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.math-puzzle-error {
+    color: #f44336;
+}
+
+.math-puzzle-error button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #6a1b9a;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.game-over {
+    text-align: center;
+    padding: 30px;
+}
+
+.game-over button {
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: #6a1b9a;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.game-over button:hover {
+    background: #8e24aa;
+    transform: translateY(-2px);
+}
+
+/* Star Rating Styles */
+.star-rating {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.star {
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.star.filled {
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    animation: starPop 0.3s ease-out;
+}
+
+.star.empty {
+    color: #ccc;
+    opacity: 0.5;
+}
+
+@keyframes starPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* เพิ่ม hover effect */
+.star.filled:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+/* สไตล์สำหรับหน้าจบเกม */
+.completion-message {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.completion-message h2 {
+    color: #6a1b9a;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.final-score {
+    margin: 20px 0;
+}
+
+.final-score p {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.stars-container {
+    margin: 15px auto;
+}
+
+.game-over-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.replay-button, .home-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.replay-button {
+    background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+    color: white;
+}
+
+.home-button {
+    background: linear-gradient(135deg, #00bcd4, #006064);
+    color: white;
+}
+
+.replay-button:hover, .home-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* เพิ่ม CSS สำหรับปุ่มคำใบ้ */
+.hint-button {
+    background: #ffb300;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 12px 25px;
+    border-radius: 25px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.hint-button:hover {
+    background: #ff8f00;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hint-button:active {
+    transform: translateY(1px);
+}
+
+.hint-icon {
+    font-size: 1.2em;
+}
+
+.hint-button.used {
+    animation: glow 1.5s ease-in-out, shake 0.5s ease-in-out;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(255, 179, 0, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 179, 0, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 179, 0, 0.5); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+/* เพิ่มสไตล์สำหรับการแจ้งเตือนในเกม */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+.in-game-notification {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    margin-bottom: 10px;
+    animation: slideIn 0.3s ease, fadeOut 0.3s ease 4.7s forwards;
+    transform-origin: top right;
+}
+
+.notification-info {
+    border-left: 5px solid #2196F3;
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+.notification-info .notification-title {
+    color: #0d47a1;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.notification-info .notification-message {
+    color: #1565c0;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 5px 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    padding: 8px;
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* สไตล์สำหรับการแจ้งเตือนคำใบ้ - ต้องตรวจสอบว่าใช้ได้กับ NotificationContext ของคุณ */
+.notification-info {
+    border-left: 5px solid #3498db;
+    background-color: rgba(52, 152, 219, 0.15);
+}
+
+.notification-info .notification-title {
+    color: #3498db;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notification-info .notification-message {
+    color: #2c3e50;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-top: 5px;
+    padding: 5px 0;
+    border-top: 1px dashed rgba(52, 152, 219, 0.3);
+}
+
+/* เพิ่ม CSS สำหรับปุ่มควบคุมใน MathPuzzle */
+@import url('./common-game-controls.css');
+
+/* รองรับ Dark Mode */
+@media (prefers-color-scheme: dark) {
+    .level-info {
+        background: #1a1a2e;
+        border-color: #16213e;
+    }
+    
+    .question {
+        color: #bb86fc;
+        background-color: #121212;
+        border-left-color: #7b1fa2;
+        text-shadow: none;
+    }
+    
+    .question span.math-number {
+        color: #cf6679;
+        background-color: rgba(207, 102, 121, 0.1);
+    }
+    
+    .question span.math-formula {
+        background-color: rgba(46, 125, 50, 0.1);
+        border-color: rgba(46, 125, 50, 0.5);
+        color: #81c784;
+    }
+    
+    .game-header h1 {
+        color: #bb86fc;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-color: #7b1fa2;
+        text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .answer-form input {
+        background-color: #121212;
+        color: #e0e0e0;
+        border-color: #7b1fa2;
+    }
+    
+    .answer-form input:focus {
+        border-color: #bb86fc;
+        box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.3);
+    }
+    
+    .game-stats {
+        background: #1a1a2e;
+        border-color: #16213e;
+    }
+    
+    .score {
+        background-color: rgba(46, 125, 50, 0.2);
+        color: #81c784;
+        border-color: rgba(46, 125, 50, 0.5);
+    }
+    
+    .timer {
+        background-color: rgba(21, 101, 192, 0.2);
+        color: #64b5f6;
+        border-color: rgba(21, 101, 192, 0.5);
+    }
+    
+    .timer-warning {
+        background-color: rgba(230, 81, 0, 0.2);
+        color: #ffb74d;
+        border-color: rgba(230, 81, 0, 0.5);
+    }
+}
+
+.history-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.history-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.history-button:before {
+    content: "📊";
+    margin-right: 5px;
+}
+
+/* สไตล์สำหรับป้องกันการเลื่อนพื้นหลังเมื่อมีป๊อปอัพแสดง */
+body.popup-active {
+    overflow: hidden;
+}
+
+/* เพิ่มเอฟเฟกต์เบลอให้พื้นหลังเมื่อป๊อปอัพแสดง */
+.hint-popup::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    backdrop-filter: blur(3px);
+}

@@ -1,53 +1,64 @@
 .bridge-game {
-    font-family: 'Kanit', sans-serif;
-    max-width: 1200px;
+    font-family: 'Kanit', 'Prompt', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.3px;
+    color: #2d3748;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f5f7fa;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8fafc 0%, #e3f0ff 100%);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(44, 62, 80, 0.08);
 }
 
 .game-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e1e5ee;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e7ef;
+    background: transparent;
 }
 
 .game-header h1 {
-    color: #2c3e50;
+    color: #1a237e;
     margin: 0;
-    font-size: 24px;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .game-stats {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
 }
 
-.score, .timer {
-    font-size: 18px;
-    font-weight: bold;
-    padding: 8px 12px;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.score, .timer-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(44, 62, 80, 0.07);
+    transition: background 0.2s;
 }
 
 .score {
-    color: #3498db;
+    color: #1976d2;
 }
 
-.timer {
-    color: #27ae60;
+.timer-display {
+    color: #43a047;
+    background: #e3fcec;
 }
 
-.timer-warning {
-    color: #e74c3c;
+.timer-display.timer-warning {
+    color: #e53935;
+    background: #ffeaea;
     animation: blink 1s infinite;
 }
 
@@ -59,79 +70,101 @@
 
 .star-rating {
     display: flex;
-    gap: 5px;
+    gap: 4px;
 }
 
 .star {
-    font-size: 24px;
+    font-size: 1.5rem;
+    transition: color 0.2s;
 }
 
 .star.filled {
-    color: #f1c40f;
+    color: #ffd600;
+    text-shadow: 0 0 8px #fff59d;
 }
 
 .star.empty {
-    color: #bdc3c7;
+    color: #cfd8dc;
 }
 
 .game-content {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 320px 1fr;
     gap: 20px;
 }
 
 .level-info {
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 18px 14px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.06);
+    margin-bottom: 12px;
+    max-width: 100%;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .level-info h3 {
-    color: #2c3e50;
+    color: #1976d2;
     margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #e3e3e3;
+    padding-bottom: 6px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .level-info p {
-    margin: 8px 0;
-    font-size: 14px;
+    font-size: 1.05rem;
+    margin: 10px 0;
+    padding: 4px 0;
+    color: #374151;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+    line-height: 1.7;
+}
+
+.level-info b {
+    color: #1976d2;
+    font-weight: 600;
 }
 
 .bridge-building-area {
     display: flex;
     flex-direction: column;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: #f7faff;
+    border-radius: 10px;
+    padding: 18px 14px;
+    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.05);
 }
 
 .bridge-building-area h3 {
-    color: #2c3e50;
+    color: #1a237e;
     margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #e3e3e3;
+    padding-bottom: 6px;
 }
 
 .bridge-visual {
-    min-height: 150px;
-    border: 2px dashed #ddd;
+    min-height: 120px;
+    border: 2px dashed #b3c6e0;
     border-radius: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     padding: 10px;
-    background-color: #f9f9f9;
+    background: #eaf4fb;
 }
 
 .empty-bridge {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 130px;
-    color: #95a5a6;
+    height: 100px;
+    color: #90a4ae;
     font-style: italic;
 }
 
@@ -142,99 +175,109 @@
 }
 
 .bridge-part {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #42a5f5, #1976d2);
     color: white;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 10px 8px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    width: 120px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.18s, box-shadow 0.18s;
+    width: 110px;
+    box-shadow: 0 2px 6px rgba(44, 62, 80, 0.09);
+    margin-bottom: 4px;
 }
 
 .bridge-part:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 16px rgba(44, 62, 80, 0.13);
 }
 
 .part-name {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
+    font-size: 1rem;
 }
 
 .part-strength {
-    font-size: 12px;
-    opacity: 0.9;
+    font-size: 0.95rem;
+    opacity: 0.92;
 }
 
 .bridge-stats {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f7f9fc;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    background: none;
     border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: 500;
 }
 
 .budget, .strength {
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 .budget {
-    color: #e67e22;
+    color: #ff9800;
 }
 
 .strength {
-    color: #3498db;
+    color: #1976d2;
 }
 
 .bridge-controls {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .simulate-button, .reset-button {
     padding: 10px 15px;
     border: none;
-    border-radius: 5px;
-    font-weight: bold;
+    border-radius: 6px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    transition: background 0.18s, transform 0.1s;
+    font-size: 1rem;
 }
 
 .simulate-button {
-    background-color: #3498db;
+    background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
     color: white;
     flex: 2;
+    box-shadow: 0 2px 6px rgba(25, 118, 210, 0.08);
 }
 
 .simulate-button:hover:not(:disabled) {
-    background-color: #2980b9;
+    background: linear-gradient(90deg, #1565c0 60%, #64b5f6 100%);
     transform: translateY(-2px);
 }
 
 .reset-button {
-    background-color: #e74c3c;
+    background: linear-gradient(90deg, #e53935 60%, #ff7043 100%);
     color: white;
     flex: 1;
+    box-shadow: 0 2px 6px rgba(229, 57, 53, 0.08);
 }
 
 .reset-button:hover:not(:disabled) {
-    background-color: #c0392b;
+    background: linear-gradient(90deg, #b71c1c 60%, #ff8a65 100%);
     transform: translateY(-2px);
 }
 
 .simulate-button:disabled, .reset-button:disabled {
-    background-color: #bdc3c7;
+    background: #cfd8dc;
     cursor: not-allowed;
 }
 
 .simulation-result {
-    padding: 15px;
+    padding: 14px 10px;
     border-radius: 8px;
-    margin-top: 15px;
+    margin-top: 10px;
     animation: fadeIn 0.5s;
+    font-size: 1.05rem;
+    line-height: 1.6;
 }
 
 @keyframes fadeIn {
@@ -243,74 +286,78 @@
 }
 
 .simulation-result.success {
-    background-color: #d5f5e3;
-    border: 1px solid #27ae60;
+    background: #e8f5e9;
+    border: 1px solid #43a047;
 }
 
 .simulation-result.failure {
-    background-color: #fadbd8;
-    border: 1px solid #e74c3c;
+    background: #ffebee;
+    border: 1px solid #e53935;
 }
 
 .simulation-result h3 {
     margin-top: 0;
-    color: #2c3e50;
+    color: #1a237e;
+    font-size: 1.3rem;
+    margin-bottom: 12px;
 }
 
 .stars-earned {
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .simulation-result button {
-    background-color: #3498db;
+    background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
     color: white;
     border: none;
     padding: 10px 15px;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
+    font-weight: 600;
+    transition: background 0.18s;
+    font-size: 1rem;
 }
 
 .simulation-result button:hover {
-    background-color: #2980b9;
+    background: linear-gradient(90deg, #1565c0 60%, #64b5f6 100%);
 }
 
 .materials-selection {
-    margin-top: 20px;
+    margin-top: 18px;
     grid-column: span 2;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 10px;
+    box-shadow: 0 2px 10px rgba(44, 62, 80, 0.05);
 }
 
 .materials-selection h3 {
-    color: #2c3e50;
+    color: #1a237e;
     margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #e3e3e3;
+    padding-bottom: 6px;
 }
 
 .materials-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
 }
 
 .material-item {
-    border: 1px solid #e1e5ee;
+    border: 1px solid #e0e7ef;
     border-radius: 8px;
-    padding: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 12px 10px;
+    transition: transform 0.18s, box-shadow 0.18s;
     cursor: pointer;
-    background-color: #fff;
+    background: #f8fafc;
 }
 
 .material-item:hover:not(.disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 5px 15px rgba(25, 118, 210, 0.09);
 }
 
 .material-item.disabled {
@@ -319,68 +366,98 @@
 }
 
 .material-name {
-    font-weight: bold;
-    font-size: 16px;
-    color: #2c3e50;
-    margin-bottom: 10px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 8px;
 }
 
 .material-details {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-.material-details span {
-    color: #7f8c8d;
+    font-size: 1rem;
+    color: #4a5568;
+    line-height: 1.5;
 }
 
 .material-description {
-    font-size: 13px;
-    color: #95a5a6;
+    font-size: 0.95rem;
+    color: #718096;
+    line-height: 1.5;
     font-style: italic;
 }
 
 .game-footer {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 2px solid #e1e5ee;
+    margin-top: 18px;
+    padding-top: 10px;
+    border-top: 2px solid #e0e7ef;
     text-align: center;
 }
 
 .home-button {
-    background-color: #7f8c8d;
+    background: linear-gradient(90deg, #607d8b 60%, #b0bec5 100%);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 10px 22px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background 0.18s;
 }
 
 .home-button:hover {
-    background-color: #2c3e50;
+    background: linear-gradient(90deg, #263238 60%, #90a4ae 100%);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .game-content {
         grid-template-columns: 1fr;
     }
-    
+    .level-info {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .bridge-game {
+        padding: 6px;
+        border-radius: 0;
+        box-shadow: none;
+        font-size: 15px;
+    }
+    .game-header h1 {
+        font-size: 1.2rem;
+    }
     .game-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 8px;
     }
-    
     .game-stats {
-        margin-top: 10px;
         width: 100%;
-        justify-content: space-between;
+        justify-content: flex-start;
+        gap: 10px;
     }
-    
-    .materials-list {
+    .game-content {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .level-info, .bridge-building-area, .materials-selection {
+        padding: 8px 4px;
+        border-radius: 6px;
+        box-shadow: none;
+    }
+    .bridge-part {
+        width: 90px;
+        font-size: 0.95rem;
+    }
+    .material-name {
+        font-size: 1.1rem;
+    }
+    .material-details,
+    .material-description {
+        font-size: 0.9rem;
+    }
+    .button {
+        font-size: 1rem;
     }
 }

@@ -2,83 +2,157 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './StudentDashboard.css';
 import { useNotification } from '../contexts/NotificationContext';
-import { getAllProgress } from '../utils/gameProgress';
+
+const GAME_DETAILS = {
+    codingGame: {
+        icon: '💻',
+        label: 'เกมโค้ดดิ้ง',
+        desc: 'เรียนรู้พื้นฐานการเขียนโค้ดผ่านเกมที่สนุกและท้าทาย',
+        route: '/coding-game'
+    },
+    bridgeGame: {
+        icon: '🌉',
+        label: 'เกมสร้างสะพาน',
+        desc: 'ฝึกทักษะวิศวกรรมและการแก้ปัญหาผ่านการสร้างสะพาน',
+        route: '/bridge-game'
+    },
+    mathPuzzle: {
+        icon: '🔢',
+        label: 'เกม Math Puzzle',
+        desc: 'ฝึกทักษะการคิดคำนวณและแก้โจทย์ปัญหาคณิตศาสตร์',
+        route: '/math-puzzle'
+    },
+    mazeGame: {
+        icon: '🎮',
+        label: 'เกม Maze',
+        desc: 'ฝึกตรรกะและการวางแผนในเขาวงกต',
+        route: '/maze-game'
+    },
+    
+};
 
 const StudentDashboard = () => {
     const navigate = useNavigate();
     const { addNotification } = useNotification();
     const [studentName, setStudentName] = useState('นักเรียน');
-    const [progress, setProgress] = useState({
-        matchingGame: { percentage: 0, level: 0, total: 10 },
-        codingGame: { percentage: 0, level: 0, total: 8 },
-        bridgeGame: { percentage: 0, level: 0, total: 10 },
-        mathPuzzle: { percentage: 0, level: 0, total: 10 }
-    });
+    const [studentId, setStudentId] = useState('');
+    const [progress, setProgress] = useState({});
+    const [hasShownWelcome, setHasShownWelcome] = useState(false);
+    const [enabledGames, setEnabledGames] = useState({});
+    const [completedGames, setCompletedGames] = useState({});
 
     useEffect(() => {
-        // โหลดข้อมูลนักเรียน
+        // โหลดข้อมูลนักเรียนจาก localStorage ก่อน
         const student = JSON.parse(localStorage.getItem('student') || '{}');
         if (student.name) {
             setStudentName(student.name);
         }
-        
-        // โหลดความก้าวหน้าแยกตามเกม
-        const allProgress = getAllProgress();
-        
-        const newProgress = {
-            matchingGame: {
-                percentage: calculatePercentage(allProgress.matchingGame?.completedLevels || 0, 10),
-                level: allProgress.matchingGame?.completedLevels || 0,
-                total: 10
-            },
-            codingGame: {
-                percentage: calculatePercentage(allProgress.codingGame?.completedLevels || 0, 8),
-                level: allProgress.codingGame?.completedLevels || 0,
-                total: 8
-            },
-            bridgeGame: {
-                percentage: calculatePercentage(allProgress.bridgeGame?.completedLevels || 0, 10),
-                level: allProgress.bridgeGame?.completedLevels || 0,
-                total: 10
-            },
-            mathPuzzle: {
-                percentage: calculatePercentage(allProgress.mathPuzzle?.completedLevels || 0, 10),
-                level: allProgress.mathPuzzle?.completedLevels || 0,
-                total: 10
-            }
-        };
-        
-        setProgress(newProgress);
-        
-        // แสดงความก้าวหน้าด้วยอนิเมชัน
-        setTimeout(() => {
-            document.querySelectorAll('.progress-bar-fill').forEach((bar, index) => {
-                const values = Object.values(newProgress).map(p => p.percentage);
-                bar.style.width = `${values[index]}%`;
+        if (student.student_id) {
+            setStudentId(student.student_id);
+        }
+
+        // แสดงการแจ้งเตือนเมื่อเข้าสู่ระบบสำเร็จ (เฉพาะครั้งแรก)
+        if (!hasShownWelcome && student.name) {
+            addNotification({
+                type: 'success',
+                title: 'เข้าสู่ระบบสำเร็จ',
+                message: `ยินดีต้อนรับกลับมา ${student.name}!`,
+                duration: 5000
             });
-        }, 500);
-        
+            setHasShownWelcome(true);
+        }
+    }, [hasShownWelcome, addNotification]);
+
+    useEffect(() => {
+        // ดึงข้อมูลเกมที่เปิดใช้งานจาก backend
+        fetch('http://mgt2.pnu.ac.th/kong/app-game/get_game_settings.php', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            mode: 'cors',
+            credentials: 'include'
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Failed to fetch game settings');
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('game settings:', data);
+                if (!data || Object.keys(data).length === 0) {
+                    // fallback กรณี API ว่าง
+                    setEnabledGames({
+                        matchingGame: { enabled: true, order: 1 },
+                        codingGame: { enabled: true, order: 2 },
+                        bridgeGame: { enabled: true, order: 3 },
+                        mathPuzzle: { enabled: true, order: 4 },
+                        mazeGame: { enabled: true, order: 5 }
+                    });
+                } else {
+                    setEnabledGames(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching game settings:', error);
+                // fallback กรณีเกิด error
+                setEnabledGames({
+                    matchingGame: { enabled: true, order: 1 },
+                    codingGame: { enabled: true, order: 2 },
+                    bridgeGame: { enabled: true, order: 3 },
+                    mathPuzzle: { enabled: true, order: 4 },
+                    mazeGame: { enabled: true, order: 5 }
+                });
+            });
     }, []);
 
     useEffect(() => {
-        // แสดงการแจ้งเตือนเมื่อเข้าสู่ระบบสำเร็จ
-        addNotification({
-            type: 'success',
-            title: 'เข้าสู่ระบบสำเร็จ',
-            message: 'ยินดีต้อนรับกลับมา!'
-        });
+        // โหลดข้อมูลความก้าวหน้าของนักเรียน
+        const student = JSON.parse(localStorage.getItem('student') || '{}');
+        if (student.student_id) {
+            fetch(`http://mgt2.pnu.ac.th/kong/app-game/get_scores.php?student_id=${student.student_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'include',
+                mode: 'cors'
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Failed to fetch scores');
+                }
+                return res.json();
+            })
+            .then(data => {
+                const completed = {};
+                if (data && data.data && Array.isArray(data.data)) {
+                    data.data.forEach(row => {
+                        if (row.score > 0) {
+                            completed[row.game_type] = true;
+                        }
+                    });
+                }
+                setCompletedGames(completed);
+            })
+            .catch(err => {
+                console.error('Error fetching scores:', err);
+                setCompletedGames({});
+            });
+        }
     }, []);
 
-    const calculatePercentage = (completed, total) => {
-        return Math.round((completed / total) * 100);
-    };
-
     const handleLogout = () => {
+        const student = JSON.parse(localStorage.getItem('student') || '{}');
         localStorage.removeItem('student');
         addNotification({
-            type: 'success',
+            type: 'info',
             title: 'ออกจากระบบสำเร็จ',
-            message: 'กลับมาเยี่ยมเราใหม่นะ!'
+            message: `ขอบคุณที่ใช้บริการ ${student.name || 'นักเรียน'}!`,
+            duration: 5000
         });
         navigate('/student-auth');
     };
@@ -97,7 +171,6 @@ const StudentDashboard = () => {
                         <span className="history-icon">📊</span>
                         ประวัติการเล่น
                     </button>
-                    
                     <button 
                         className="logout-btn"
                         onClick={handleLogout}
@@ -112,6 +185,7 @@ const StudentDashboard = () => {
                 <div className="welcome-section">
                     <div className="welcome-text">
                         <h2>สวัสดี, {studentName}!</h2>
+                        <p>รหัสนักเรียน: {studentId}</p>
                         <p>ยินดีต้อนรับกลับมา เรามีเกมการเรียนรู้ที่น่าสนใจมากมายรอคุณอยู่</p>
                     </div>
                     <div className="profile-avatar">
@@ -119,103 +193,32 @@ const StudentDashboard = () => {
                     </div>
                 </div>
                 
-                {/* ลบส่วนการ์ดแบบทดสอบ คะแนนล่าสุด และรางวัลออก */}
-                
                 <div className="games-section">
                     <h2 className="section-title">เกมการเรียนรู้</h2>
-                    
                     <div className="game-cards">
-                        <div className="game-card" data-game="matching-game">
-                            <div className="game-icon">🦁</div>
-                            <h3>เกมจับคู่สัตว์</h3>
-                            <p>ฝึกความจำและการจับคู่ผ่านการเรียนรู้เกี่ยวกับสัตว์ต่างๆ</p>
-                            <button className="play-button" onClick={() => navigate('/game')}>
-                                เริ่มเล่นเกม
-                            </button>
-                        </div>
-                        
-                        <div className="game-card" data-game="coding-game">
-                            <div className="game-icon">💻</div>
-                            <h3>เกมโค้ดดิ้ง</h3>
-                            <p>เรียนรู้พื้นฐานการเขียนโค้ดผ่านเกมที่สนุกและท้าทาย</p>
-                            <button className="play-button" onClick={() => navigate('/coding-game')}>
-                                เริ่มเล่นเกม
-                            </button>
-                        </div>
-                        
-                        <div className="game-card" data-game="bridge-game">
-                            <div className="game-icon">🌉</div>
-                            <h3>เกมสร้างสะพาน</h3>
-                            <p>ฝึกทักษะวิศวกรรมและการแก้ปัญหาผ่านการสร้างสะพาน</p>
-                            <button className="play-button" onClick={() => navigate('/bridge-game')}>
-                                เริ่มเล่นเกม
-                            </button>
-                        </div>
-                        
-                        <div className="game-card" data-game="math-puzzle">
-                            <div className="game-icon">🔢</div>
-                            <h3>เกม Math Puzzle</h3>
-                            <p>ฝึกทักษะการคิดคำนวณและแก้โจทย์ปัญหาคณิตศาสตร์</p>
-                            <button className="play-button" onClick={() => navigate('/math-puzzle')}>
-                                เริ่มเล่นเกม
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div className="progress-section">
-                    <h2 className="section-title">ความก้าวหน้า</h2>
-                    
-                    <div className="progress-snapshot">
-                        <div className="progress-cards">
-                            <div className="progress-card">
-                                <div className="progress-icon">🦁</div>
-                                <div className="progress-info">
-                                    <h4>เกมจับคู่สัตว์</h4>
-                                    <p>ความก้าวหน้า: {progress.matchingGame.percentage}%</p>
-                                    <p className="level-info">ด่านที่ {progress.matchingGame.level}/{progress.matchingGame.total}</p>
-                                    <div className="progress-bar">
-                                        <div className="progress-bar-fill"></div>
-                                    </div>
+                        {Object.entries(enabledGames)
+                            .filter(([key, game]) => game.enabled && GAME_DETAILS[key]) // ตรวจสอบว่ามีข้อมูลเกมใน GAME_DETAILS
+                            .sort((a, b) => a[1].order - b[1].order)
+                            .map(([key, game]) => (
+                                <div
+                                    className={`game-card${completedGames[key] ? ' completed' : ''}`}
+                                    data-game={key}
+                                    key={key}
+                                >
+                                    <div className="game-icon">{GAME_DETAILS[key]?.icon}</div>
+                                    <h3>{GAME_DETAILS[key]?.label}</h3>
+                                    <p>{GAME_DETAILS[key]?.desc}</p>
+                                    {completedGames[key] && (
+                                        <div className="game-completed-badge">✔️ เล่นสำเร็จแล้ว</div>
+                                    )}
+                                    <button 
+                                        className="play-button" 
+                                        onClick={() => navigate(GAME_DETAILS[key]?.route)}
+                                    >
+                                        เริ่มเล่นเกม
+                                    </button>
                                 </div>
-                            </div>
-                            
-                            <div className="progress-card">
-                                <div className="progress-icon">💻</div>
-                                <div className="progress-info">
-                                    <h4>เกมโค้ดดิ้ง</h4>
-                                    <p>ความก้าวหน้า: {progress.codingGame.percentage}%</p>
-                                    <p className="level-info">ด่านที่ {progress.codingGame.level}/{progress.codingGame.total}</p>
-                                    <div className="progress-bar">
-                                        <div className="progress-bar-fill"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="progress-card">
-                                <div className="progress-icon">🌉</div>
-                                <div className="progress-info">
-                                    <h4>เกมสร้างสะพาน</h4>
-                                    <p>ความก้าวหน้า: {progress.bridgeGame.percentage}%</p>
-                                    <p className="level-info">ด่านที่ {progress.bridgeGame.level}/{progress.bridgeGame.total}</p>
-                                    <div className="progress-bar">
-                                        <div className="progress-bar-fill"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="progress-card">
-                                <div className="progress-icon">🔢</div>
-                                <div className="progress-info">
-                                    <h4>เกม Math Puzzle</h4>
-                                    <p>ความก้าวหน้า: {progress.mathPuzzle.percentage}%</p>
-                                    <p className="level-info">ด่านที่ {progress.mathPuzzle.level}/{progress.mathPuzzle.total}</p>
-                                    <div className="progress-bar">
-                                        <div className="progress-bar-fill"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            ))}
                     </div>
                 </div>
             </div>

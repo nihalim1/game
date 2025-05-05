@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './CodingGame.css';
-import { saveGameProgress, getGameProgress } from '../utils/gameProgress';
+
 import { useNavigate } from 'react-router-dom';
 
 const CodingGame = ({ onMount, onUnmount }) => {
@@ -17,17 +17,34 @@ const CodingGame = ({ onMount, onUnmount }) => {
     const [score, setScore] = useState(0);
     const [obstacles, setObstacles] = useState([]);
     const [levelDescription, setLevelDescription] = useState('');
+    const [totalScore, setTotalScore] = useState(0); // Add total score state
+    // เพิ่ม state สำหรับเก็บดาวแต่ละด่าน
+    const [starsPerLevel, setStarsPerLevel] = useState({});
+    
+    // เพิ่ม state สำหรับแสดงผลเมื่อเล่นจบเกม
+    const [showGameComplete, setShowGameComplete] = useState(false);
 
     // เพิ่ม state เก็บคำแนะนำสำหรับแต่ละด่าน
     const [levelHint, setLevelHint] = useState('');
     // เพิ่ม state แสดงคำแนะนำ
     const [showHint, setShowHint] = useState(false);
 
+    // เพิ่ม state สำหรับควบคุมเพลง
+    const [backgroundMusic, setBackgroundMusic] = useState(null);
+    const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+
+    // เพิ่ม state สำหรับจับเวลานับขึ้น
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [timerInterval, setTimerInterval] = useState(null);
+    const [usedTimePerLevel, setUsedTimePerLevel] = useState({}); // เก็บเวลาที่ใช้จริงแต่ละด่าน
+
     const addCommand = (command) => {
+        playSound('click.mp3');
         setCommands([...commands, command]);
     };
 
     const runProgram = () => {
+        playSound('button.mp3');
         setIsRunning(true);
         let currentPosition = { ...characterPosition };
         let currentDirection = characterDirection;
@@ -114,10 +131,29 @@ const CodingGame = ({ onMount, onUnmount }) => {
                 if (index === commands.length - 1 && !hasCollided) {
                     if (currentPosition.x === targetPosition.x && 
                         currentPosition.y === targetPosition.y) {
+                        playSound('level_complete.mp3');
                         const levelScore = calculateScore(commands.length, currentLevel);
-                        setScore(prevScore => prevScore + levelScore);
-                        handleLevelComplete();
+                        const newScore = score + levelScore;
+                        const newTotalScore = totalScore + levelScore;
+                        setScore(newScore);
+                        setTotalScore(newTotalScore);
+                        // หยุดจับเวลา
+                        if (timerInterval) clearInterval(timerInterval);
+                        setTimerInterval(null);
+                        // คำนวณเวลาที่ใช้จริง
+                        const usedTime = elapsedTime;
+                        setUsedTimePerLevel(prev => ({ ...prev, [currentLevel]: usedTime }));
+                        const earnedStars = calculateStars(usedTime);
+                        setStarsPerLevel(prev => ({
+                            ...prev,
+                            [currentLevel]: earnedStars
+                        }));
+                        handleLevelComplete(earnedStars);
                     } else {
+                        playSound('wrong.mp3');
+                        // หยุดจับเวลา
+                        if (timerInterval) clearInterval(timerInterval);
+                        setTimerInterval(null);
                         console.error('กรุณาลองใหม่อีกครั้ง');
                     }
                     setIsRunning(false);
@@ -131,16 +167,27 @@ const CodingGame = ({ onMount, onUnmount }) => {
 
     // คำนวณคะแนนขึ้นอยู่กับจำนวนคำสั่งและระดับความยาก
     const calculateScore = (commandCount, level) => {
-        const baseScore = 100 * level;
-        const efficiency = Math.max(0, 1 - (commandCount / 20)); // ยิ่งใช้คำสั่งน้อยยิ่งได้คะแนนมาก
-        return Math.round(baseScore * (0.5 + efficiency));
+        // คะแนนเต็ม 100 คะแนน
+        return 100;
+    };
+
+    // ปรับฟังก์ชันคำนวณดาวตามเวลา
+    const calculateStars = (timeUsed) => {
+        if (timeUsed <= 60) return 4;
+        if (timeUsed <= 120) return 3;
+        if (timeUsed <= 180) return 2;
+        return 1;
     };
 
     const resetGame = () => {
+        playSound('button.mp3');
         setCommands([]);
         setCharacterPosition({ ...getStartingPosition(currentLevel) });
         setCharacterDirection(getStartingDirection(currentLevel));
         setIsRunning(false);
+        if (timerInterval) clearInterval(timerInterval);
+        setTimerInterval(null);
+        setElapsedTime(0);
     };
 
     // ฟังก์ชันสำหรับตำแหน่งเริ่มต้นของตัวละคร
@@ -148,14 +195,8 @@ const CodingGame = ({ onMount, onUnmount }) => {
         switch(level) {
             case 1: return { x: 0, y: 3 * CELL_SIZE };
             case 2: return { x: 0, y: 3 * CELL_SIZE };
-            case 3: return { x: 0, y: 4 * CELL_SIZE };
+            case 3: return { x: 0, y: 0 };
             case 4: return { x: 0, y: 0 };
-            case 5: return { x: 0, y: 0 };
-            case 6: return { x: 3 * CELL_SIZE, y: 0 };
-            case 7: return { x: 0, y: 3 * CELL_SIZE };
-            case 8: return { x: 0, y: 0 };
-            case 9: return { x: 4 * CELL_SIZE, y: 0 };
-            case 10: return { x: 0, y: 0 };
             default: return { x: 0, y: 3 * CELL_SIZE };
         }
     };
@@ -167,19 +208,22 @@ const CodingGame = ({ onMount, onUnmount }) => {
             case 2: return 'right';
             case 3: return 'right';
             case 4: return 'right';
-            case 5: return 'right';
-            case 6: return 'down';
-            case 7: return 'right';
-            case 8: return 'right';
-            case 9: return 'down';
-            case 10: return 'right';
             default: return 'right';
         }
     };
 
     const saveProgress = (level) => {
-        const savedProgress = localStorage.getItem('gameProgress') || JSON.stringify({
-            totalLevels: 10,
+        // ดึงข้อมูลนักเรียน
+        const student = JSON.parse(localStorage.getItem('student') || '{}');
+        const studentId = student.id;
+        
+        if (!studentId) {
+            console.warn('ไม่พบรหัสนักเรียน ไม่สามารถบันทึกความก้าวหน้าได้');
+            return;
+        }
+        
+        const savedProgress = localStorage.getItem(`gameProgress_${studentId}`) || JSON.stringify({
+            totalLevels: 4,
             completedLevels: 0,
             lastPlayedLevel: 1,
             achievements: []
@@ -187,37 +231,77 @@ const CodingGame = ({ onMount, onUnmount }) => {
         
         const progress = JSON.parse(savedProgress);
         
-        // อัพเดทความก้าวหน้า
         if (level > progress.completedLevels) {
             progress.completedLevels = level;
         }
         progress.lastPlayedLevel = level + 1;
         
-        // บันทึกลง localStorage
-        localStorage.setItem('gameProgress', JSON.stringify(progress));
+        localStorage.setItem(`gameProgress_${studentId}`, JSON.stringify(progress));
     };
 
-    const handleLevelComplete = () => {
-        console.log(`ผ่านด่านที่ ${currentLevel} แล้ว คะแนน: ${score}`);
+    // เพิ่มฟังก์ชันดึงข้อมูลด่าน
+    const getLevelData = (level) => {
+        // กำหนด timeLimit ของแต่ละด่าน (วินาที)
+        const levelConfigs = [
+            { timeLimit: 120 }, // ด่าน 1
+            { timeLimit: 180 }, // ด่าน 2
+            { timeLimit: 240 }, // ด่าน 3
+            { timeLimit: 300 }, // ด่าน 4
+        ];
+        return levelConfigs[level - 1] || { timeLimit: 120 };
+    };
+
+    // ปรับ handleLevelComplete ให้รับ earnedStars
+    const handleLevelComplete = (earnedStars) => {
+        playSound('achievement.mp3');
+        const levelScore = calculateScore(commands.length, currentLevel);
+        const newScore = score + levelScore;
+        const newTotalScore = totalScore + levelScore;
+        setStarsPerLevel(prev => ({
+            ...prev,
+            [currentLevel]: earnedStars
+        }));
+
+        console.log(`ผ่านด่านที่ ${currentLevel} แล้ว คะแนน: ${newScore}`);
         saveProgress(currentLevel);
-        
-        // บันทึกความก้าวหน้า
-        saveGameProgress('codingGame', {
-            completedLevels: currentLevel,
-            lastScore: score,
-            highestScore: Math.max(score, getGameProgress('codingGame').highestScore || 0)
-        });
-        
-        if (currentLevel < 10) {
+
+        setScore(newScore);
+        setTotalScore(newTotalScore);
+
+        if (currentLevel < 4) {
             setCurrentLevel(currentLevel + 1);
         } else {
-            alert("ยินดีด้วย! คุณชนะเกมแล้ว!");
+            stopBackgroundMusic(); // หยุดเพลงเมื่อจบเกม
+            playSound('victory_music.mp3');
+            setShowGameComplete(true);
         }
     };
 
     // แสดงคำแนะนำ
     const toggleHint = () => {
         setShowHint(!showHint);
+    };
+
+    // เรียกใช้เมื่อจบเกมหรือผ่านด่าน
+    const saveScoreToServer = async (studentId, gameType, score, stars) => {
+        const formData = new FormData();
+        formData.append('student_id', studentId);
+        formData.append('game_type', gameType);
+        formData.append('score', score);
+        formData.append('stars', stars);
+
+        try {
+            const response = await fetch('http://mgt2.pnu.ac.th/kong/app-game/save_score.php', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            if (!result.success) {
+                console.error('บันทึกคะแนนล้มเหลว:', result.message);
+            }
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
+        }
     };
 
     useEffect(() => {
@@ -228,10 +312,8 @@ const CodingGame = ({ onMount, onUnmount }) => {
 
             const newObstacles = [];
             
-            // กำหนดเส้นทางและอุปสรรคตามด่าน
             switch(level) {
                 case 1:
-                    // ด่านที่ 1: เส้นทางตรงง่ายๆ
                     setLevelDescription('ด่านที่ 1: เส้นทางเดินตรง');
                     setLevelHint('ใช้คำสั่ง "เดินหน้า" หลายๆ ครั้งเพื่อไปถึงเป้าหมาย');
                     
@@ -242,7 +324,6 @@ const CodingGame = ({ onMount, onUnmount }) => {
                     break;
                 
                 case 2:
-                    // ด่านที่ 2: เส้นทางเลี้ยวขวา 1 ครั้ง
                     setLevelDescription('ด่านที่ 2: ทางเลี้ยวขวา');
                     setLevelHint('ใช้คำสั่ง "เดินหน้า" และ "หันขวา" เพื่อเลี้ยวขวาและไปถึงเป้าหมาย');
                     
@@ -256,63 +337,7 @@ const CodingGame = ({ onMount, onUnmount }) => {
                     break;
                 
                 case 3:
-                    // ด่านที่ 3: เส้นทางเลี้ยวซ้าย 1 ครั้ง
-                    setLevelDescription('ด่านที่ 3: ทางเลี้ยวซ้าย');
-                    setLevelHint('ใช้คำสั่ง "เดินหน้า" และ "หันซ้าย" เพื่อเลี้ยวซ้ายและไปถึงเป้าหมาย');
-                    
-                    for(let i = 0; i < 3; i++) {
-                        newGrid[4][i] = 'path';
-                    }
-                    for(let i = 1; i < 4; i++) {
-                        newGrid[i][2] = 'path';
-                    }
-                    setTargetPosition({ x: 2 * CELL_SIZE, y: 1 * CELL_SIZE });
-                    break;
-                
-                case 4:
-                    // ด่านที่ 4: เส้นทางรูปตัว Z
-                    setLevelDescription('ด่านที่ 4: เส้นทางรูปตัว Z');
-                    setLevelHint('คุณต้องเลี้ยวหลายครั้งเพื่อเดินตามเส้นทางรูปตัว Z');
-                    
-                    for(let i = 0; i < 3; i++) {
-                        newGrid[0][i] = 'path';
-                    }
-                    for(let i = 0; i < 3; i++) {
-                        newGrid[i][2] = 'path';
-                    }
-                    for(let i = 2; i < 5; i++) {
-                        newGrid[2][i] = 'path';
-                    }
-                    for(let i = 2; i < 5; i++) {
-                        newGrid[i][4] = 'path';
-                    }
-                    for(let i = 4; i < 7; i++) {
-                        newGrid[4][i] = 'path';
-                    }
-                    setTargetPosition({ x: 6 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    break;
-                
-                case 5:
-                    // ด่านที่ 5: เส้นทางพร้อมอุปสรรค
-                    setLevelDescription('ด่านที่ 5: เส้นทางที่มีอุปสรรค');
-                    setLevelHint('ระวังอุปสรรคสีแดง คุณต้องหลบเพื่อไม่ให้ชน');
-                    
-                    for(let i = 0; i < 7; i++) {
-                        newGrid[0][i] = 'path';
-                    }
-                    for(let i = 0; i < 5; i++) {
-                        newGrid[i][6] = 'path';
-                    }
-                    
-                    // เพิ่มอุปสรรค
-                    newObstacles.push({ x: 3 * CELL_SIZE, y: 0 });
-                    
-                    setTargetPosition({ x: 6 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    break;
-                
-                case 6:
-                    // ด่านที่ 6: เขาวงกตง่าย
-                    setLevelDescription('ด่านที่ 6: เขาวงกตเบื้องต้น');
+                    setLevelDescription('ด่านที่ 3: เขาวงกตเบื้องต้น');
                     setLevelHint('คุณต้องเดินตามเส้นทางที่กำหนดและหลบอุปสรรค');
                     
                     for(let i = 0; i < 5; i++) {
@@ -322,108 +347,16 @@ const CodingGame = ({ onMount, onUnmount }) => {
                         newGrid[4][i] = 'path';
                     }
                     
-                    // เพิ่มอุปสรรค
                     newObstacles.push({ x: 3 * CELL_SIZE, y: 2 * CELL_SIZE });
                     newObstacles.push({ x: 5 * CELL_SIZE, y: 4 * CELL_SIZE });
                     
                     setTargetPosition({ x: 6 * CELL_SIZE, y: 4 * CELL_SIZE });
                     break;
                 
-                case 7:
-                    // ด่านที่ 7: เขาวงกตปานกลาง
-                    setLevelDescription('ด่านที่ 7: เขาวงกตซับซ้อน');
-                    setLevelHint('คุณต้องเลือกเส้นทางที่ถูกต้องในเขาวงกต หลบอุปสรรคหลายอัน');
-                    
-                    for(let i = 0; i < 6; i++) {
-                        newGrid[3][i] = 'path';
-                    }
-                    for(let i = 1; i < 6; i++) {
-                        newGrid[i][5] = 'path';
-                    }
-                    for(let i = 5; i < 8; i++) {
-                        newGrid[1][i] = 'path';
-                    }
-                    
-                    // เพิ่มอุปสรรค
-                    newObstacles.push({ x: 2 * CELL_SIZE, y: 3 * CELL_SIZE });
-                    newObstacles.push({ x: 4 * CELL_SIZE, y: 3 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 2 * CELL_SIZE });
-                    
-                    setTargetPosition({ x: 7 * CELL_SIZE, y: 1 * CELL_SIZE });
-                    break;
-                
-                case 8:
-                    // ด่านที่ 8: เขาวงกตซับซ้อน
-                    setLevelDescription('ด่านที่ 8: เขาวงกตซับซ้อนมาก');
-                    setLevelHint('คิดวางแผนอย่างรอบคอบก่อนเดิน อุปสรรคมีมากขึ้น');
-                    
-                    for(let i = 0; i < 3; i++) {
-                        newGrid[0][i] = 'path';
-                    }
-                    for(let i = 0; i < 5; i++) {
-                        newGrid[i][2] = 'path';
-                    }
-                    for(let i = 2; i < 5; i++) {
-                        newGrid[4][i] = 'path';
-                    }
-                    for(let i = 4; i < 7; i++) {
-                        newGrid[i][4] = 'path';
-                    }
-                    for(let i = 4; i < 8; i++) {
-                        newGrid[6][i] = 'path';
-                    }
-                    
-                    // เพิ่มอุปสรรค
-                    newObstacles.push({ x: 2 * CELL_SIZE, y: 1 * CELL_SIZE });
-                    newObstacles.push({ x: 2 * CELL_SIZE, y: 3 * CELL_SIZE });
-                    newObstacles.push({ x: 3 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    newObstacles.push({ x: 4 * CELL_SIZE, y: 5 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 6 * CELL_SIZE });
-                    
-                    setTargetPosition({ x: 7 * CELL_SIZE, y: 6 * CELL_SIZE });
-                    break;
-                
-                case 9:
-                    // ด่านที่ 9: เขาวงกตยากมาก
-                    setLevelDescription('ด่านที่ 9: การทดสอบความอดทน');
-                    setLevelHint('คุณต้องหาเส้นทางที่ยาวและซับซ้อน ความอดทนเป็นกุญแจสู่ความสำเร็จ');
-                    
-                    for(let j = 0; j < 8; j++) {
-                        newGrid[0][j] = 'path';
-                    }
-                    for(let i = 0; i < 7; i++) {
-                        newGrid[i][7] = 'path';
-                    }
-                    for(let j = 3; j < 8; j++) {
-                        newGrid[6][j] = 'path';
-                    }
-                    for(let i = 2; i < 7; i++) {
-                        newGrid[i][3] = 'path';
-                    }
-                    for(let j = 1; j < 4; j++) {
-                        newGrid[2][j] = 'path';
-                    }
-                    for(let i = 2; i < 5; i++) {
-                        newGrid[i][1] = 'path';
-                    }
-                    
-                    // เพิ่มอุปสรรค
-                    newObstacles.push({ x: 2 * CELL_SIZE, y: 0 });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 0 });
-                    newObstacles.push({ x: 7 * CELL_SIZE, y: 2 * CELL_SIZE });
-                    newObstacles.push({ x: 7 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 6 * CELL_SIZE });
-                    newObstacles.push({ x: 1 * CELL_SIZE, y: 6 * CELL_SIZE });
-                    
-                    setTargetPosition({ x: 1 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    break;
-                
-                case 10:
-                    // ด่านที่ 10: จุดสุดท้าย
-                    setLevelDescription('ด่านที่ 10: การทดสอบขั้นสูง');
+                case 4:
+                    setLevelDescription('ด่านที่ 4: การทดสอบขั้นสูง');
                     setLevelHint('นี่คือบททดสอบสุดท้าย คุณต้องใช้ทุกทักษะที่ได้เรียนรู้มา');
                     
-                    // สร้างเขาวงกตที่ซับซ้อนมาก
                     for(let j = 0; j < 4; j++) {
                         newGrid[0][j] = 'path';
                     }
@@ -440,22 +373,16 @@ const CodingGame = ({ onMount, onUnmount }) => {
                         newGrid[1][j] = 'path';
                     }
                     
-                    // เพิ่มอุปสรรคมากมาย
                     newObstacles.push({ x: 1 * CELL_SIZE, y: 0 });
                     newObstacles.push({ x: 3 * CELL_SIZE, y: 1 * CELL_SIZE });
                     newObstacles.push({ x: 5 * CELL_SIZE, y: 1 * CELL_SIZE });
                     newObstacles.push({ x: 3 * CELL_SIZE, y: 2 * CELL_SIZE });
                     newObstacles.push({ x: 5 * CELL_SIZE, y: 3 * CELL_SIZE });
-                    newObstacles.push({ x: 2 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    newObstacles.push({ x: 3 * CELL_SIZE, y: 6 * CELL_SIZE });
-                    newObstacles.push({ x: 7 * CELL_SIZE, y: 3 * CELL_SIZE });
                     
                     setTargetPosition({ x: 7 * CELL_SIZE, y: 6 * CELL_SIZE });
                     break;
                 
                 default:
-                    // ด่านเริ่มต้น
                     setLevelDescription('ด่านทดสอบ');
                     setLevelHint('เดินหน้าไปยังเป้าหมาย');
                     
@@ -494,12 +421,42 @@ const CodingGame = ({ onMount, onUnmount }) => {
     }, [onMount, onUnmount]);
 
     useEffect(() => {
-        // ดึงความก้าวหน้าเดิม
-        const progress = getGameProgress('codingGame');
-        if (progress.completedLevels > 0) {
-            setCurrentLevel(progress.completedLevels);
+        if (showGameComplete) {
+            // ดึงข้อมูลนักเรียน
+            const student = JSON.parse(localStorage.getItem('student') || '{}');
+            const studentId = student.student_id || student.id;
+            if (studentId) {
+                // รวมดาวทั้งหมด
+                const totalStars = Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0);
+                saveScoreToServer(studentId, 'codingGame', totalScore, totalStars);
+            }
         }
+    }, [showGameComplete]);
+
+    useEffect(() => {
+        // เริ่มเล่นเพลงเมื่อเริ่มเกม
+        playBackgroundMusic();
+
+        // หยุดเพลงเมื่อออกจากเกม
+        return () => {
+            stopBackgroundMusic();
+        };
     }, []);
+
+    // useEffect สำหรับเริ่มจับเวลานับขึ้นเมื่อเข้าแต่ละด่าน
+    useEffect(() => {
+        setElapsedTime(0);
+        if (timerInterval) clearInterval(timerInterval);
+        if (showGameComplete) return; // ไม่จับเวลาถ้าเกมจบ
+        const interval = setInterval(() => {
+            setElapsedTime(prev => prev + 1);
+        }, 1000);
+        setTimerInterval(interval);
+        return () => {
+            clearInterval(interval);
+            setTimerInterval(null);
+        };
+    }, [currentLevel, showGameComplete]);
 
     const getCharacterEmoji = () => {
         switch(characterDirection) {
@@ -512,7 +469,47 @@ const CodingGame = ({ onMount, onUnmount }) => {
     };
 
     const goToHome = () => {
+        stopBackgroundMusic();
+        playSound('button.mp3');
+        if (timerInterval) clearInterval(timerInterval);
+        setTimerInterval(null);
         navigate('/student-dashboard');
+    };
+
+    // เพิ่มฟังก์ชันเล่นเสียง
+    const playSound = (file) => {
+        const audio = new Audio(process.env.PUBLIC_URL + '/sounds/' + file);
+        audio.play();
+    };
+
+    // เพิ่มฟังก์ชันเล่นเพลง
+    const playBackgroundMusic = () => {
+        if (!backgroundMusic) {
+            const music = new Audio(process.env.PUBLIC_URL + '/sounds/MV.mp3');
+            music.loop = true;
+            music.volume = 0.1; // ปรับระดับเสียงให้เหมาะสม
+            setBackgroundMusic(music);
+            music.play();
+            setIsMusicPlaying(true);
+        } else if (!isMusicPlaying) {
+            backgroundMusic.play();
+            setIsMusicPlaying(true);
+        }
+    };
+
+    // เพิ่มฟังก์ชันหยุดเพลง
+    const stopBackgroundMusic = () => {
+        if (backgroundMusic && isMusicPlaying) {
+            backgroundMusic.pause();
+            setIsMusicPlaying(false);
+        }
+    };
+
+    // เพิ่มฟังก์ชันฟอร์แมตเวลา
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -521,10 +518,13 @@ const CodingGame = ({ onMount, onUnmount }) => {
                 <h2>บล็อกคำสั่ง : เขาวงกต</h2>
                 <div className="level-info">
                     <div className="level-indicator">
-                        ด่านที่ {currentLevel} / 10
+                        ด่านที่ {currentLevel} / 4
                     </div>
                     <div className="score-display">
-                        คะแนน: {score}
+                        คะแนนรวม: {totalScore}
+                    </div>
+                    <div className="timer-display" style={{ marginLeft: 16, fontWeight: 'bold', color: elapsedTime > 60 ? '#d32f2f' : '#1976d2', fontSize: '1.1rem', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ marginRight: 4 }}>⏱️</span> {formatTime(elapsedTime)}
                     </div>
                 </div>
                 <div className="level-description">
@@ -646,6 +646,69 @@ const CodingGame = ({ onMount, onUnmount }) => {
                     </div>
                 </div>
             </div>
+
+            {/* เพิ่ม Modal แสดงผลเมื่อเล่นจบเกม */}
+            {showGameComplete && (
+                <div className="game-complete-modal">
+                    <div className="game-complete-content">
+                        <h2>🏆 ยินดีด้วย! คุณเล่นจบเกมแล้ว 🏆</h2>
+                        <div className="game-complete-details">
+                            <p className="complete-score">คะแนนรวมทั้งหมด: <span>{totalScore}</span> คะแนน</p>
+                            <p>คุณผ่านทั้ง 4 ด่านเรียบร้อยแล้ว!</p>
+                            <div className="stars-summary" style={{ textAlign: 'center', margin: '24px 0' }}>
+                                <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: 8, color: '#7c4dff', letterSpacing: 1 }}>
+                                    ⭐ ดาวสะสม ⭐
+                                </div>
+                                <div style={{ fontSize: '2.5rem', letterSpacing: 2 }}>
+                                    {Array.from({ length: Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0) }).map((_, i) => (
+                                        <span key={i} style={{ color: '#FFD700', textShadow: '0 0 8px #fff200' }}>★</span>
+                                    ))}
+                                    {Array.from({ length: 16 - Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0) }).map((_, i) => (
+                                        <span key={i + Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0)} style={{ color: '#e0e0e0' }}>★</span>
+                                    ))}
+                                </div>
+                                <div style={{ marginTop: 8, fontSize: '1.1rem', color: '#333' }}>
+                                    {Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0)} / 16 ดาว
+                                </div>
+                            </div>
+                            <div className="used-time-summary" style={{ marginTop: 16 }}>
+                                <h4>เวลาที่ใช้แต่ละด่าน:</h4>
+                                <ul style={{ textAlign: 'left', display: 'inline-block' }}>
+                                    {Object.entries(usedTimePerLevel).map(([level, time]) => (
+                                        <li key={level}>ด่าน {level}: {formatTime(time)} นาที</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <p>ทักษะการเขียนโค้ดของคุณยอดเยี่ยมมาก</p>
+                        </div>
+                        <div className="game-complete-buttons">
+                            <button 
+                                onClick={() => {
+                                    setCurrentLevel(1);
+                                    setScore(0);
+                                    setTotalScore(0);
+                                    setShowGameComplete(false);
+                                    setCommands([]);
+                                    setCharacterPosition(getStartingPosition(1));
+                                    setCharacterDirection(getStartingDirection(1));
+                                    setElapsedTime(0);
+                                    setUsedTimePerLevel({});
+                                    setStarsPerLevel({});
+                                }}
+                                className="play-again-button"
+                            >
+                                🔄 เล่นใหม่
+                            </button>
+                            <button 
+                                onClick={goToHome}
+                                className="home-button"
+                            >
+                                🏠 กลับหน้าหลัก
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -44,14 +44,33 @@ export const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, provider);
   };
 
+  // ฟังก์ชัน custom login สำหรับระบบหลังบ้านของคุณเอง
+  const customLogin = (userData) => {
+    setCurrentUser(userData);
+    localStorage.setItem('student', JSON.stringify(userData));
+  };
+
+  const customLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('student');
+  };
+
   // ตรวจสอบการเปลี่ยนสถานะของผู้ใช้ (เช่น login/logout)
   useEffect(() => {
+    // ลองดึงจาก localStorage ก่อน
+    const student = localStorage.getItem('student');
+    if (student) {
+      setCurrentUser(JSON.parse(student));
+      setLoading(false);
+      return;
+    }
+
+    // ถ้าไม่มี student ใน localStorage ให้ใช้ Firebase
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setLoading(false);
     });
 
-    // ยกเลิก listener เมื่อ component ถูก unmount
     return unsubscribe;
   }, []);
 
@@ -62,7 +81,9 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     resetPassword,
-    googleSignIn
+    googleSignIn,
+    customLogin,
+    customLogout
   };
 
   // แสดง children เมื่อโหลดข้อมูลเสร็จแล้วเท่านั้น

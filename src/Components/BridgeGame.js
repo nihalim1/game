@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './BridgeGame.css';
 import { useNotification } from '../contexts/NotificationContext';
-import { saveGameProgress, getGameProgress } from '../utils/gameProgress';
+
 import { useNavigate } from 'react-router-dom';
 import { calculateStarsByTime, saveLevelStars } from '../utils/starRating';
 
@@ -22,19 +22,22 @@ const BridgeGame = () => {
     const [timeLeft, setTimeLeft] = useState(300); // 5 นาทีสำหรับแต่ละด่าน
     const [isPlaying, setIsPlaying] = useState(false);
     const [stars, setStars] = useState(0);
+    const [starsPerLevel, setStarsPerLevel] = useState({}); // เพิ่ม state สำหรับเก็บดาวแต่ละด่าน
+    
+    // เพิ่ม state สำหรับจับเวลานับขึ้น
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [timerInterval, setTimerInterval] = useState(null);
     
     // วัสดุสำหรับสร้างสะพาน
     const materials = [
         { id: 1, name: "ไม้", strength: 50, cost: 100, availableFrom: 1, description: "วัสดุพื้นฐาน ราคาถูก แข็งแรงพอใช้" },
         { id: 2, name: "อิฐ", strength: 120, cost: 200, availableFrom: 1, description: "แข็งแรงปานกลาง ทนน้ำได้ดีพอสมควร" },
         { id: 3, name: "เหล็ก", strength: 200, cost: 300, availableFrom: 2, description: "แข็งแรงสูง ทนลมได้ดี" },
-        { id: 4, name: "คอนกรีต", strength: 250, cost: 350, availableFrom: 3, description: "แข็งแรงสูง ทนต่อน้ำได้ดี" },
-        { id: 5, name: "เหล็กกล้า", strength: 300, cost: 450, availableFrom: 4, description: "แข็งแรงมาก ทนทานต่อแรงลมและน้ำ" },
-        { id: 6, name: "เหล็กเสริมคอนกรีต", strength: 350, cost: 500, availableFrom: 5, description: "แข็งแรงมาก ทนต่อแรงลม น้ำ และแรงกดดัน" },
-        { id: 7, name: "คอมโพสิต", strength: 400, cost: 650, availableFrom: 6, description: "น้ำหนักเบา แข็งแรงมาก ทนต่อแรงลมและความร้อน" },
-        { id: 8, name: "ไทเทเนียม", strength: 450, cost: 800, availableFrom: 7, description: "แข็งแรงสูงมาก ทนสารเคมีและความร้อน" },
-        { id: 9, name: "คาร์บอนไฟเบอร์", strength: 500, cost: 900, availableFrom: 8, description: "น้ำหนักเบามาก แข็งแรงสูง ทนทุกสภาพ" },
-        { id: 10, name: "วัสดุนาโน", strength: 600, cost: 1000, availableFrom: 9, description: "เทคโนโลยีล้ำสมัย แข็งแรงที่สุด ทนทุกสภาพแวดล้อม" }
+        { id: 4, name: "คอนกรีต", strength: 250, cost: 350, availableFrom: 2, description: "แข็งแรงสูง ทนต่อน้ำได้ดี" },
+        { id: 5, name: "เหล็กกล้า", strength: 300, cost: 450, availableFrom: 3, description: "แข็งแรงมาก ทนทานต่อแรงลมและน้ำ" },
+        { id: 6, name: "เหล็กเสริมคอนกรีต", strength: 350, cost: 500, availableFrom: 3, description: "แข็งแรงมาก ทนต่อแรงลม น้ำ และแรงกดดัน" },
+        { id: 7, name: "คอมโพสิต", strength: 400, cost: 650, availableFrom: 4, description: "น้ำหนักเบา แข็งแรงมาก ทนต่อแรงลมและความร้อน" },
+        { id: 8, name: "ไทเทเนียม", strength: 450, cost: 800, availableFrom: 4, description: "แข็งแรงสูงมาก ทนสารเคมีและความร้อน" }
     ];
 
     // ระดับความยากของแต่ละด่าน
@@ -86,95 +89,11 @@ const BridgeGame = () => {
             water: 0,
             specialConditions: "ลมแรง พื้นที่สูง",
             timeLimit: 480 // 8 นาที
-        },
-        {
-            id: 5,
-            name: "สะพานในเขตฝนตกหนัก",
-            length: 8,
-            requiredStrength: 1200,
-            budget: 3000,
-            description: "สะพานในพื้นที่ที่มีฝนตกหนัก ต้องทนต่อน้ำและความชื้น",
-            wind: 30,
-            water: 70,
-            specialConditions: "ฝนตกหนัก น้ำท่วมบ่อย",
-            timeLimit: 480 // 8 นาที
-        },
-        {
-            id: 6,
-            name: "สะพานในเขตร้อน",
-            length: 10,
-            requiredStrength: 1300,
-            budget: 3200,
-            description: "สะพานในพื้นที่อากาศร้อนจัด ต้องทนความร้อนสูง",
-            wind: 20,
-            water: 30,
-            heat: 80,
-            specialConditions: "อุณหภูมิสูงมาก วัสดุต้องทนความร้อน",
-            timeLimit: 540 // 9 นาที
-        },
-        {
-            id: 7,
-            name: "สะพานข้ามทะเล",
-            length: 12,
-            requiredStrength: 1600,
-            budget: 3800,
-            description: "สะพานข้ามทะเล ต้องทนต่อน้ำเค็มและคลื่นลม",
-            wind: 70,
-            water: 60,
-            salt: 90,
-            specialConditions: "น้ำเค็ม คลื่นลมแรง ต้องทนต่อการกัดกร่อน",
-            timeLimit: 600 // 10 นาที
-        },
-        {
-            id: 8,
-            name: "สะพานแขวน",
-            length: 14,
-            requiredStrength: 1800,
-            budget: 4200,
-            description: "สะพานแขวนขนาดใหญ่ รองรับการจราจรหนาแน่น",
-            wind: 80,
-            water: 40,
-            vibration: 70,
-            specialConditions: "ต้องทนต่อการสั่นสะเทือนจากการจราจร และลมพายุ",
-            timeLimit: 600 // 10 นาที
-        },
-        {
-            id: 9,
-            name: "สะพานในเขตแผ่นดินไหว",
-            length: 12,
-            requiredStrength: 2000,
-            budget: 4500,
-            description: "สะพานในพื้นที่เสี่ยงแผ่นดินไหว ต้องออกแบบพิเศษ",
-            wind: 40,
-            water: 50,
-            earthquake: 90,
-            specialConditions: "พื้นที่เสี่ยงแผ่นดินไหว ต้องทนการสั่นสะเทือนรุนแรง",
-            timeLimit: 660 // 11 นาที
-        },
-        {
-            id: 10,
-            name: "สะพานข้ามภูเขาไฟ",
-            length: 10,
-            requiredStrength: 2500,
-            budget: 5000,
-            description: "สะพานข้ามพื้นที่ใกล้ภูเขาไฟ ท้าทายที่สุด",
-            wind: 60,
-            water: 20,
-            heat: 100,
-            earthquake: 60,
-            specialConditions: "ความร้อนสูงมาก แก๊สพิษ แผ่นดินไหวเป็นครั้งคราว",
-            timeLimit: 720 // 12 นาที
         }
     ];
 
     // โหลดด่านปัจจุบัน
     useEffect(() => {
-        const progress = getGameProgress('bridgeGame');
-        if (progress.completedLevels > 0) {
-            const nextLevel = Math.min(progress.completedLevels + 1, levels.length);
-            setCurrentLevel(nextLevel);
-        }
-        
         initializeLevel(currentLevel);
     }, [currentLevel]);
 
@@ -208,16 +127,31 @@ const BridgeGame = () => {
         return () => clearInterval(timer);
     }, [isPlaying]);
 
+    // useEffect สำหรับเริ่มจับเวลานับขึ้นเมื่อเริ่มด่าน
+    useEffect(() => {
+        if (!isPlaying) return;
+        setElapsedTime(0);
+        if (timerInterval) clearInterval(timerInterval);
+        const interval = setInterval(() => {
+            setElapsedTime(prev => prev + 1);
+        }, 1000);
+        setTimerInterval(interval);
+        return () => {
+            clearInterval(interval);
+            setTimerInterval(null);
+        };
+    }, [isPlaying, currentLevel]);
+
     // จัดการเมื่อหมดเวลา
     const handleTimeout = () => {
         setIsPlaying(false);
-        
+        if (timerInterval) clearInterval(timerInterval);
+        setTimerInterval(null);
         addNotification({
             type: 'error',
             title: 'หมดเวลา!',
             message: 'คุณไม่สามารถสร้างสะพานให้เสร็จได้ทันเวลา'
         });
-        
         // บันทึกประวัติกรณีหมดเวลา
         const currentLevelData = levels[currentLevel - 1];
         saveGameHistory(currentLevelData, false, 0, 0, 0);
@@ -232,6 +166,7 @@ const BridgeGame = () => {
 
     // เพิ่มชิ้นส่วนสะพาน
     const addBridgePart = (material) => {
+        playSound('click.mp3');
         if (budget < material.cost) {
             addNotification({
                 type: 'warning',
@@ -256,6 +191,7 @@ const BridgeGame = () => {
 
     // ลบชิ้นส่วนสะพาน
     const removeBridgePart = (index) => {
+        playSound('button.mp3');
         const newParts = [...bridgeParts];
         const removedPart = newParts.splice(index, 1)[0];
         setBridgeParts(newParts);
@@ -302,8 +238,27 @@ const BridgeGame = () => {
         return Math.round(totalStrength * environmentalImpact);
     };
 
+    // คำนวณคะแนน
+    const calculateScore = () => {
+        const currentLevelData = levels[currentLevel - 1];
+        const baseScore = 100; // คะแนนเต็ม 100 คะแนน
+        const timeBonus = Math.round((timeLeft / currentLevelData.timeLimit) * baseScore * 0.3); // โบนัสจากเวลาที่เหลือ 30%
+        const budgetBonus = Math.round((budget / currentLevelData.budget) * baseScore * 0.2); // โบนัสจากงบประมาณที่เหลือ 20%
+        
+        return Math.min(100, baseScore + timeBonus + budgetBonus);
+    };
+
+    // คำนวณดาวจากเวลาที่ใช้จริง
+    const calculateStars = (usedTime) => {
+        if (usedTime <= 60) return 4;
+        if (usedTime <= 120) return 3;
+        if (usedTime <= 180) return 2;
+        return 1;
+    };
+
     // จำลองการทดสอบสะพาน
     const simulateBridge = () => {
+        playSound('button.mp3');
         if (bridgeParts.length === 0) {
             addNotification({
                 type: 'error',
@@ -312,46 +267,37 @@ const BridgeGame = () => {
             });
             return;
         }
-
         setIsSimulating(true);
-        
         // จำลองการทดสอบใช้เวลา 3 วินาที
         setTimeout(() => {
             const currentLevelData = levels[currentLevel - 1];
             const bridgeStrength = calculateBridgeStrength();
             const success = bridgeStrength >= currentLevelData.requiredStrength;
-            
+            const usedTime = elapsedTime;
+            if (timerInterval) clearInterval(timerInterval);
+            setTimerInterval(null);
             if (success) {
-                // คำนวณดาวจากเวลาที่เหลือ
-                const currentTimeLeft = timeLeft;
-                const earnedStars = calculateStarsByTime(currentLevelData.timeLimit - currentTimeLeft, currentLevelData.timeLimit);
-                setStars(earnedStars);
-                
-                // บันทึกดาวสำหรับด่านนี้
-                saveLevelStars('bridgeGame', currentLevel, earnedStars);
-                
-                // เก็บคะแนนและบันทึกความก้าวหน้า
+                // คำนวณคะแนน
                 const earnedScore = calculateScore();
+                const earnedStars = calculateStars(usedTime);
+                // บันทึกดาวสำหรับด่านนี้
+                setStarsPerLevel(prev => ({
+                    ...prev,
+                    [currentLevel]: earnedStars
+                }));
+                setStars(earnedStars);
                 setScore(prev => prev + earnedScore);
-                
                 setSimulationResult({
                     success: true,
                     message: `สำเร็จ! สะพานของคุณแข็งแรงพอ (${bridgeStrength}/${currentLevelData.requiredStrength})`,
                     stars: earnedStars,
                     score: earnedScore
                 });
-                
                 // บันทึกความก้าวหน้า
-                saveGameProgress('bridgeGame', {
-                    completedLevels: currentLevel,
-                    highestScore: Math.max(getGameProgress('bridgeGame').highestScore || 0, score + earnedScore)
-                });
-                
-                // บันทึกประวัติการเล่น
-                saveGameHistory(currentLevelData, true, currentTimeLeft, earnedScore, earnedStars);
-                
+                saveGameHistory(currentLevelData, true, currentLevelData.timeLimit - usedTime, earnedScore, earnedStars);
                 // หยุดการนับเวลา
                 setIsPlaying(false);
+                playSound('level_complete.mp3');
             } else {
                 setSimulationResult({
                     success: false,
@@ -359,41 +305,46 @@ const BridgeGame = () => {
                     stars: 0,
                     score: 0
                 });
-                
                 // บันทึกประวัติการเล่น
-                saveGameHistory(currentLevelData, false, timeLeft, 0, 0);
+                saveGameHistory(currentLevelData, false, currentLevelData.timeLimit - usedTime, 0, 0);
+                playSound('wrong.mp3');
             }
-            
             setIsSimulating(false);
         }, 3000);
     };
 
-    // คำนวณคะแนน
-    const calculateScore = () => {
-        const currentLevelData = levels[currentLevel - 1];
-        const baseScore = currentLevelData.requiredStrength; // คะแนนพื้นฐานเท่ากับความแข็งแรงที่ต้องการ
-        const timeBonus = Math.round((timeLeft / currentLevelData.timeLimit) * baseScore * 0.5); // โบนัสจากเวลาที่เหลือ
-        const budgetBonus = Math.round((budget / currentLevelData.budget) * baseScore * 0.3); // โบนัสจากงบประมาณที่เหลือ
-        
-        return baseScore + timeBonus + budgetBonus;
-    };
-
     // ไปยังด่านถัดไป
     const goToNextLevel = () => {
-        if (currentLevel < levels.length) {
+        playSound('click.mp3');
+        if (currentLevel < 4) {
             setCurrentLevel(prev => prev + 1);
         } else {
             setGameCompleted(true);
+            
+            // คำนวณดาวรวมทั้งหมด
+            const totalStars = Object.values(starsPerLevel).reduce((sum, stars) => sum + stars, 0);
+            
             addNotification({
                 type: 'success',
                 title: 'ยินดีด้วย!',
-                message: 'คุณผ่านเกมสร้างสะพานครบทุกด่านแล้ว!'
+                message: `คุณผ่านเกมสร้างสะพานครบทุกด่านแล้ว! ได้ดาวรวมทั้งหมด ${totalStars} ดาว`
             });
+            
+            // บันทึกคะแนนรวม
+            const student = JSON.parse(localStorage.getItem('student') || '{}');
+            if (student.student_id) {
+                saveScoreToServer(student.student_id, 'bridgeGame', score, totalStars);
+            }
+            if (currentLevel >= 4) {
+                playSound('victory_music.mp3');
+            }
         }
     };
 
     // รีเซ็ตด่านปัจจุบัน
     const resetLevel = () => {
+        playSound('button.mp3');
+        setElapsedTime(0);
         initializeLevel(currentLevel);
     };
 
@@ -436,11 +387,21 @@ const BridgeGame = () => {
 
     // กลับไปยังหน้าหลัก
     const goToHome = () => {
+        playSound('button.mp3');
         navigate('/student-dashboard');
     };
 
     // บันทึกประวัติการเล่น
     const saveGameHistory = (levelData, isSuccess, timeRemaining, earnedScore, earnedStars) => {
+        // ดึงข้อมูลนักเรียน
+        const student = JSON.parse(localStorage.getItem('student') || '{}');
+        const studentId = student.id;
+        
+        if (!studentId) {
+            console.warn('ไม่พบรหัสนักเรียน ไม่สามารถบันทึกประวัติการเล่นได้');
+            return;
+        }
+        
         // สร้างข้อมูลประวัติการเล่น
         const historyEntry = {
             timestamp: new Date().toISOString(),
@@ -457,7 +418,7 @@ const BridgeGame = () => {
         };
 
         // ดึงประวัติเดิม
-        let gameHistory = JSON.parse(localStorage.getItem('bridgeGame_history') || '[]');
+        let gameHistory = JSON.parse(localStorage.getItem(`bridgeGame_history_${studentId}`) || '[]');
         
         // เพิ่มประวัติใหม่
         gameHistory.push(historyEntry);
@@ -468,27 +429,38 @@ const BridgeGame = () => {
         }
         
         // บันทึกลง localStorage
-        localStorage.setItem('bridgeGame_history', JSON.stringify(gameHistory));
+        localStorage.setItem(`bridgeGame_history_${studentId}`, JSON.stringify(gameHistory));
         
         // บันทึกสถิติรวม
-        updateGameStats(isSuccess, earnedScore, earnedStars);
+        updateGameStats(isSuccess, earnedScore, earnedStars, studentId);
+        
+        // บันทึกความก้าวหน้า
+        if (isSuccess) {
+            // บันทึกคะแนนลงเซิร์ฟเวอร์ (ถ้ามี) เมื่อเล่นจบเกม
+            if (currentLevel === 4 && isSuccess) {
+                const serverStudentId = student.student_id || studentId;
+                const totalStars = Object.values(starsPerLevel).reduce((sum, stars) => sum + stars, 0);
+                saveScoreToServer(serverStudentId, 'bridgeGame', score + earnedScore, totalStars);
+            }
+        }
     };
 
-    // อัปเดตสถิติรวม
-    const updateGameStats = (isSuccess, points, stars) => {
-        // ดึงสถิติเดิม
-        let stats = JSON.parse(localStorage.getItem('bridgeGame_stats') || '{}');
+    // อัพเดทสถิติรวมของเกม
+    const updateGameStats = (isSuccess, earnedScore, earnedStars, studentId) => {
+        if (!studentId) return;
         
-        // อัปเดตสถิติ
-        stats.totalPlayed = (stats.totalPlayed || 0) + 1;
-        stats.successfulBuilds = (stats.successfulBuilds || 0) + (isSuccess ? 1 : 0);
-        stats.failedBuilds = (stats.failedBuilds || 0) + (isSuccess ? 0 : 1);
-        stats.totalPoints = (stats.totalPoints || 0) + (isSuccess ? points : 0);
-        stats.totalStars = (stats.totalStars || 0) + (isSuccess ? stars : 0);
-        stats.lastPlayed = new Date().toISOString();
+        const statsKey = `bridgeGame_stats_${studentId}`;
+        const currentStats = JSON.parse(localStorage.getItem(statsKey) || '{}');
         
-        // บันทึกลง localStorage
-        localStorage.setItem('bridgeGame_stats', JSON.stringify(stats));
+        const newStats = {
+            totalGames: (currentStats.totalGames || 0) + 1,
+            wins: (currentStats.wins || 0) + (isSuccess ? 1 : 0),
+            totalScore: (currentStats.totalScore || 0) + earnedScore,
+            totalStars: (currentStats.totalStars || 0) + earnedStars,
+            lastPlayed: new Date().toISOString()
+        };
+        
+        localStorage.setItem(statsKey, JSON.stringify(newStats));
     };
 
     // แสดงดาว
@@ -507,107 +479,140 @@ const BridgeGame = () => {
         );
     };
 
+    const saveScoreToServer = async (studentId, gameType, score, totalStars) => {
+        const formData = new FormData();
+        formData.append('student_id', studentId);
+        formData.append('game_type', gameType);
+        formData.append('score', score);
+        formData.append('stars', totalStars);
+
+        try {
+            const response = await fetch('http://mgt2.pnu.ac.th/kong/app-game/save_score.php', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            if (!result.success) {
+                console.error('บันทึกคะแนนล้มเหลว:', result.message);
+            }
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
+        }
+    };
+
+    // เพิ่มฟังก์ชันเล่นเสียง
+    const playSound = (file) => {
+        const audio = new Audio(process.env.PUBLIC_URL + '/sounds/' + file);
+        audio.play();
+    };
+
     return (
         <div className="bridge-game">
+            {/* Header */}
             <div className="game-header">
-                <h1>เกมสร้างสะพาน - {levels[currentLevel - 1].name}</h1>
+                <h1>เกมสร้างสะพาน <span style={{fontWeight:400, fontSize:'1.1rem', color:'#1976d2'}}>– {levels[currentLevel - 1].name}</span></h1>
                 <div className="game-stats">
                     <div className="score">คะแนน: {score}</div>
-                    <div className={`timer ${timeLeft <= 60 ? 'timer-warning' : ''}`}>
-                        เวลา: {formatTime(timeLeft)}
+                    <div className="timer-display" style={{ marginLeft: 16, fontWeight: 'bold', color: elapsedTime > 60 ? '#d32f2f' : '#1976d2', fontSize: '1.1rem', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ marginRight: 4 }}>⏱️</span> {formatTime(elapsedTime)}
                     </div>
                     <StarRating stars={stars} />
                 </div>
             </div>
 
-            <div className="game-content">
-                <div className="level-info">
-                    <h3>ด่านที่ {currentLevel}: {levels[currentLevel - 1].name}</h3>
-                    <p>{levels[currentLevel - 1].description}</p>
-                    <p>ความยาวสะพาน: {levels[currentLevel - 1].length} หน่วย</p>
-                    <p>ความแข็งแรงที่ต้องการ: {levels[currentLevel - 1].requiredStrength}</p>
-                    <p>งบประมาณเริ่มต้น: {levels[currentLevel - 1].budget} บาท</p>
-                    <p>สภาพแวดล้อม: {getEnvironmentInfo()}</p>
-                    <p>เงื่อนไขพิเศษ: {levels[currentLevel - 1].specialConditions}</p>
-                </div>
-
-                <div className="bridge-building-area">
-                    <h3>พื้นที่สร้างสะพาน</h3>
-                    <div className="bridge-visual">
-                        {bridgeParts.length > 0 ? (
-                            <div className="bridge-parts">
-                                {bridgeParts.map((part, index) => (
-                                    <div key={index} className="bridge-part" onClick={() => removeBridgePart(index)}>
-                                        <div className="part-name">{part.name}</div>
-                                        <div className="part-strength">ความแข็งแรง: {part.strength}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="empty-bridge">
-                                <p>เลือกวัสดุจากรายการด้านล่างเพื่อสร้างสะพาน</p>
-                            </div>
-                        )}
+            {/* Level Info */}
+            <div className="level-info" style={{marginBottom: 18}}>
+                <h3>ด่านที่ {currentLevel}: {levels[currentLevel - 1].name}</h3>
+                <div style={{display:'flex', flexWrap:'wrap', gap:16}}>
+                    <div style={{minWidth:180, flex:1}}>
+                        <p><b>รายละเอียด:</b> {levels[currentLevel - 1].description}</p>
+                        <p><b>ความยาวสะพาน:</b> {levels[currentLevel - 1].length} หน่วย</p>
+                        <p><b>ความแข็งแรงที่ต้องการ:</b> {levels[currentLevel - 1].requiredStrength}</p>
+                        <p><b>งบประมาณเริ่มต้น:</b> {levels[currentLevel - 1].budget} บาท</p>
                     </div>
-
-                    <div className="bridge-stats">
-                        <div className="budget">งบประมาณคงเหลือ: {budget} บาท</div>
-                        <div className="strength">ความแข็งแรงปัจจุบัน: {calculateBridgeStrength()} / {levels[currentLevel - 1].requiredStrength}</div>
-                    </div>
-
-                    <div className="bridge-controls">
-                        <button 
-                            className="simulate-button" 
-                            onClick={simulateBridge} 
-                            disabled={isSimulating || bridgeParts.length === 0 || !isPlaying}
-                        >
-                            {isSimulating ? 'กำลังทดสอบ...' : 'ทดสอบสะพาน'}
-                        </button>
-                        <button className="reset-button" onClick={resetLevel} disabled={isSimulating}>
-                            เริ่มใหม่
-                        </button>
-                    </div>
-
-                    {simulationResult && (
-                        <div className={`simulation-result ${simulationResult.success ? 'success' : 'failure'}`}>
-                            <h3>{simulationResult.success ? 'ทดสอบสำเร็จ!' : 'ทดสอบล้มเหลว'}</h3>
-                            <p>{simulationResult.message}</p>
-                            {simulationResult.success && (
-                                <>
-                                    <p>คะแนนที่ได้: +{simulationResult.score}</p>
-                                    <div className="stars-earned">
-                                        <StarRating stars={simulationResult.stars} />
-                                    </div>
-                                    <button onClick={goToNextLevel}>
-                                        {currentLevel < levels.length ? 'ไปด่านต่อไป' : 'จบเกม'}
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <div className="materials-selection">
-                    <h3>วัสดุสำหรับสร้างสะพาน</h3>
-                    <div className="materials-list">
-                        {materials.filter(m => m.availableFrom <= currentLevel).map(material => (
-                            <div 
-                                key={material.id}
-                                className={`material-item ${budget < material.cost ? 'disabled' : ''}`}
-                                onClick={() => addBridgePart(material)}
-                            >
-                                <div className="material-name">{material.name}</div>
-                                <div className="material-details">
-                                    <span>ความแข็งแรง: {material.strength}</span>
-                                    <span>ราคา: {material.cost} บาท</span>
-                                </div>
-                                <div className="material-description">{material.description}</div>
-                            </div>
-                        ))}
+                    <div style={{minWidth:180, flex:1}}>
+                        <p><b>สภาพแวดล้อม:</b> {getEnvironmentInfo() || '-'}</p>
+                        <p><b>เงื่อนไขพิเศษ:</b> {levels[currentLevel - 1].specialConditions}</p>
                     </div>
                 </div>
             </div>
 
+            {/* Bridge Area */}
+            <div className="bridge-building-area">
+                <h3>พื้นที่สร้างสะพาน</h3>
+                <div className="bridge-visual">
+                    {bridgeParts.length > 0 ? (
+                        <div className="bridge-parts">
+                            {bridgeParts.map((part, index) => (
+                                <div key={index} className="bridge-part" onClick={() => removeBridgePart(index)}>
+                                    <div className="part-name">{part.name}</div>
+                                    <div className="part-strength">ความแข็งแรง: {part.strength}</div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="empty-bridge">
+                            <p>เลือกวัสดุจากรายการด้านล่างเพื่อสร้างสะพาน</p>
+                        </div>
+                    )}
+                </div>
+                <div className="bridge-stats">
+                    <div className="budget">งบประมาณคงเหลือ: {budget} บาท</div>
+                    <div className="strength">ความแข็งแรงปัจจุบัน: {calculateBridgeStrength()} / {levels[currentLevel - 1].requiredStrength}</div>
+                </div>
+                <div className="bridge-controls">
+                    <button 
+                        className="simulate-button" 
+                        onClick={simulateBridge} 
+                        disabled={isSimulating || bridgeParts.length === 0 || !isPlaying}
+                    >
+                        {isSimulating ? 'กำลังทดสอบ...' : 'ทดสอบสะพาน'}
+                    </button>
+                    <button className="reset-button" onClick={resetLevel} disabled={isSimulating}>
+                        เริ่มใหม่
+                    </button>
+                </div>
+                {simulationResult && (
+                    <div className={`simulation-result ${simulationResult.success ? 'success' : 'failure'}`}>
+                        <h3>{simulationResult.success ? 'ทดสอบสำเร็จ!' : 'ทดสอบล้มเหลว'}</h3>
+                        <p>{simulationResult.message}</p>
+                        {simulationResult.success && (
+                            <>
+                                <p>คะแนนที่ได้: +{simulationResult.score}</p>
+                                <div className="stars-earned">
+                                    <StarRating stars={simulationResult.stars} />
+                                </div>
+                                <button onClick={goToNextLevel} style={{marginTop:8}}>
+                                    {currentLevel < levels.length ? 'ไปด่านต่อไป' : 'จบเกม'}
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Materials List */}
+            <div className="materials-selection">
+                <h3>วัสดุสำหรับสร้างสะพาน</h3>
+                <div className="materials-list">
+                    {materials.filter(m => m.availableFrom <= currentLevel).map(material => (
+                        <div 
+                            key={material.id}
+                            className={`material-item ${budget < material.cost ? 'disabled' : ''}`}
+                            onClick={() => addBridgePart(material)}
+                        >
+                            <div className="material-name">{material.name}</div>
+                            <div className="material-details">
+                                <span>ความแข็งแรง: {material.strength}</span>
+                                <span>ราคา: {material.cost} บาท</span>
+                            </div>
+                            <div className="material-description">{material.description}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Footer */}
             <div className="game-footer">
                 <button className="home-button" onClick={goToHome}>
                     กลับหน้าหลัก

@@ -16,6 +16,7 @@ import ForgotPassword from './Components/ForgotPassword';
 import { NotificationProvider } from './contexts/NotificationContext';
 import Notification from './Components/Notification';
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
+import MazeGame from './Components/MazeGame';
 import './App.css';
 
 const NotificationManager = () => {
@@ -25,8 +26,9 @@ const NotificationManager = () => {
     '/game',
     '/coding-game',
     '/bridge-game',
-    '/math-puzzle'
-  ];
+    '/math-puzzle',
+    '/mazeGmae'
+  ];  
 
   const shouldHideNotification = hideNotificationPaths.some(path =>
     location.pathname.startsWith(path)
@@ -90,7 +92,7 @@ function App() {
               <Route path="/bridge-game" element={<BridgeGame />} />
               <Route path="/math-puzzle" element={<MathPuzzle />} />
               <Route path="/game-history" element={<GameHistory />} />
-
+              <Route path="/MazeGame" element={<MazeGame />} />
               {/* Auth Pages */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />

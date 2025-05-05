@@ -2,7 +2,7 @@
   "name": "projectgame",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/kong/projectgame",
+  "homepage": "/kong/game",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -43,5 +43,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://mgt2.pnu.ac.th"
 }

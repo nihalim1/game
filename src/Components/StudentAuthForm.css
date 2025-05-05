@@ -136,7 +136,6 @@
 .student-auth-box {
   width: 100%;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
   border-radius: var(--border-radius);
   padding: 35px;
   text-align: center;

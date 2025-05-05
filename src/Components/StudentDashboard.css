@@ -10,215 +10,150 @@
   --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* สไตล์พื้นฐาน */
+/* Modern Dashboard Design */
 .student-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e3f0ff 100%);
   min-height: 100vh;
-  background: #f9f9f9;
-  font-family: 'Prompt', sans-serif;
-  color: #333;
-  padding-bottom: 2rem;
 }
 
-/* แถบนำทาง */
+/* Navigation Bar */
 .dashboard-nav {
-  background: white;
-  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  margin-bottom: 32px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .nav-left h1 {
-  font-size: 1.5rem;
+  color: #1a237e;
   margin: 0;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .nav-right {
   display: flex;
-  gap: 15px;
+  gap: 12px;
 }
 
-/* ปุ่มในแถบนำทาง */
 .history-btn, .logout-btn {
-  padding: 10px 20px;
-  border-radius: 30px;
-  border: none;
-  font-family: 'Prompt', sans-serif;
-  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  font-size: 1rem;
 }
 
 .history-btn {
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
   color: white;
 }
 
 .logout-btn {
-  background: var(--accent-gradient);
+  background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
   color: white;
 }
 
 .history-btn:hover, .logout-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* ส่วนเนื้อหา */
-.dashboard-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* หัวข้อส่วน */
-.section-title {
-  position: relative;
-  padding-left: 15px;
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.section-title::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 5px;
-  background: var(--primary-gradient);
-  border-radius: 5px;
-}
-
-/* คำทักทาย */
+/* Welcome Section */
 .welcome-section {
-  background: white;
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--card-shadow);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 24px;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.5s ease;
 }
 
 .welcome-text h2 {
-  margin: 0;
+  color: #1a237e;
+  margin: 0 0 8px;
   font-size: 1.8rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .welcome-text p {
-  margin: 0.5rem 0 0;
+  color: #374151;
+  margin: 0;
   font-size: 1.1rem;
-  color: #666;
+  line-height: 1.6;
 }
 
 .profile-avatar {
   width: 80px;
   height: 80px;
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
   border-radius: 50%;
-  background: var(--primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
   color: white;
-  box-shadow: 0 5px 15px rgba(106, 27, 154, 0.3);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
 }
 
-/* การ์ดเกม */
+/* Games Section */
 .games-section {
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
+}
+
+.section-title {
+  color: #1a237e;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  padding-left: 16px;
+  border-left: 4px solid #1976d2;
 }
 
 .game-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 .game-card {
   background: white;
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: var(--card-shadow);
-  transition: var(--transition);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.game-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: var(--primary-gradient);
-}
-
-.game-card[data-game="matching-game"]::after {
-  background: var(--primary-gradient);
-}
-
-.game-card[data-game="coding-game"]::after {
-  background: var(--secondary-gradient);
-}
-
-.game-card[data-game="bridge-game"]::after {
-  background: var(--warning-gradient);
-}
-
-.game-card[data-game="math-puzzle"]::after {
-  background: var(--success-gradient);
 }
 
 .game-card:hover {
-  transform: translateY(-10px);
-  box-shadow: var(--hover-shadow);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .game-icon {
   font-size: 3rem;
-  margin-bottom: 1rem;
-  transition: var(--transition);
-}
-
-.game-card[data-game="matching-game"] .game-icon {
-  color: #6a1b9a;
-}
-
-.game-card[data-game="coding-game"] .game-icon {
-  color: #00bcd4;
-}
-
-.game-card[data-game="bridge-game"] .game-icon {
-  color: #ff9800;
-}
-
-.game-card[data-game="math-puzzle"] .game-icon {
-  color: #4caf50;
+  margin-bottom: 16px;
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
 .game-card:hover .game-icon {
@@ -226,246 +161,116 @@
 }
 
 .game-card h3 {
+  color: #1a237e;
   font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 
 .game-card p {
-  color: #666;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
+  color: #374151;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
 }
 
 .play-button {
-  background: var(--primary-gradient);
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 30px;
-  font-family: 'Prompt', sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
   width: 100%;
-  box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2);
-}
-
-.game-card[data-game="matching-game"] .play-button {
-  background: var(--primary-gradient);
-  box-shadow: 0 4px 10px rgba(106, 27, 154, 0.2);
-}
-
-.game-card[data-game="coding-game"] .play-button {
-  background: var(--secondary-gradient);
-  box-shadow: 0 4px 10px rgba(0, 188, 212, 0.2);
-}
-
-.game-card[data-game="bridge-game"] .play-button {
-  background: var(--warning-gradient);
-  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2);
-}
-
-.game-card[data-game="math-puzzle"] .play-button {
-  background: var(--success-gradient);
-  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+  color: white;
 }
 
 .play-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(106, 27, 154, 0.3);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
 }
 
-/* ความก้าวหน้า */
-.progress-snapshot {
-  background: white;
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: var(--card-shadow);
-}
-
-.progress-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.progress-card {
-  background: rgba(106, 27, 154, 0.05);
-  border-radius: 12px;
-  padding: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  transition: var(--transition);
-}
-
-.progress-card:hover {
-  background: rgba(106, 27, 154, 0.1);
-  transform: translateY(-3px);
-}
-
-.progress-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
+/* Completed Game Badge */
+.game-completed-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #4caf50;
   color: white;
-}
-
-.progress-info h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.progress-info p {
-  margin: 5px 0 0;
-  color: #666;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
 }
 
-.progress-bar {
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  margin-top: 5px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  width: 0%;
-  transition: width 1s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-/* กำหนดสีที่แตกต่างกันสำหรับแต่ละเกม */
-.progress-card:nth-child(1) .progress-bar-fill {
-  background: linear-gradient(90deg, #6a1b9a, #9c27b0);
-}
-
-.progress-card:nth-child(2) .progress-bar-fill {
-  background: linear-gradient(90deg, #00bcd4, #006064);
-}
-
-.progress-card:nth-child(3) .progress-bar-fill {
-  background: linear-gradient(90deg, #ff9800, #ef6c00);
-}
-
-.progress-card:nth-child(4) .progress-bar-fill {
-  background: linear-gradient(90deg, #4caf50, #2e7d32);
-}
-
-/* สไตล์อนิเมชัน */
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-.game-icon {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .dashboard-content {
-    padding: 1.5rem;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .student-dashboard {
+    padding: 16px;
+  }
+
+  .dashboard-nav {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
   .welcome-section {
     flex-direction: column;
     text-align: center;
-    padding: 1.2rem;
+    padding: 20px;
   }
-  
-  .welcome-text {
-    margin-bottom: 1rem;
-  }
-  
-  .profile-avatar {
-    margin-bottom: 1rem;
-  }
-}
 
-@media (max-width: 768px) {
-  .dashboard-nav {
-    flex-direction: column;
-    padding: 1rem;
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
   }
-  
-  .nav-left {
-    margin-bottom: 1rem;
-  }
-  
-  .nav-right {
-    width: 100%;
-    justify-content: center;
-  }
-  
+
   .game-cards {
     grid-template-columns: 1fr;
   }
-  
-  .progress-cards {
-    grid-template-columns: 1fr;
-  }
-  
-  .section-title {
-    font-size: 1.3rem;
+
+  .game-card {
+    padding: 20px;
   }
 }
 
-/* Dark Mode */
+/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .student-dashboard {
-    background: #1a1a1a;
-    color: #f0f0f0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
   }
-  
-  .dashboard-nav, .welcome-section, .game-card, .progress-snapshot, .progress-card {
-    background: #252525;
-    color: #f0f0f0;
-  }
-  
-  .game-card h3 {
-    color: #f0f0f0;
-  }
-  
-  .game-card p, .welcome-text p, .progress-info p {
-    color: #aaa;
-  }
-  
-  .section-title {
-    color: #f0f0f0;
-  }
-  
-  .progress-card {
+
+  .dashboard-nav, .welcome-section, .game-card {
     background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
-  
-  .progress-card:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .progress-bar {
-    background: #444;
-  }
-}
 
-/* เพิ่มสไตล์สำหรับข้อมูลด่าน */
-.level-info {
-  font-size: 0.85rem;
-  color: #555;
-  margin: 2px 0 5px;
-}
+  .nav-left h1, .welcome-text h2, .section-title, .game-card h3 {
+    color: #e2e8f0;
+  }
 
-/* ซ่อนการ์ดทั้งหมด */
-.dashboard-cards {
-  display: none;
+  .welcome-text p, .game-card p {
+    color: #a0aec0;
+  }
+
+  .play-button {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  }
 }

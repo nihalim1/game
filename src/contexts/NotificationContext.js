@@ -36,10 +36,21 @@ const NotificationsDisplay = ({ notifications, removeNotification }) => {
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
+    const [shownNotificationKeys, setShownNotificationKeys] = useState(new Set());
+    let notificationCounter = 0;
 
     // ฟังก์ชันเพิ่มการแจ้งเตือน
     const addNotification = (notification) => {
-        const id = Date.now();
+        // สร้าง unique key จาก title และ message
+        const notificationKey = `${notification.title}-${notification.message}`;
+        
+        // ตรวจสอบว่าการแจ้งเตือนนี้เคยแสดงไปแล้วหรือไม่
+        if (shownNotificationKeys.has(notificationKey)) {
+            return null;
+        }
+
+        notificationCounter += 1;
+        const id = `${Date.now()}-${notificationCounter}`;
         
         // ตรวจสอบประเภทการแจ้งเตือน
         const type = notification.type || 'info';
@@ -54,6 +65,9 @@ export const NotificationProvider = ({ children }) => {
             createdAt: new Date()
         };
         
+        // เพิ่ม key ลงในชุดที่แสดงแล้ว
+        setShownNotificationKeys(prev => new Set([...prev, notificationKey]));
+        
         // จำกัดจำนวนการแจ้งเตือนไม่เกิน 5 รายการ
         setNotifications((prev) => {
             const limitedNotifications = prev.length >= 5 
@@ -65,6 +79,12 @@ export const NotificationProvider = ({ children }) => {
         // ตั้งเวลาให้การแจ้งเตือนหายไปอัตโนมัติ
         setTimeout(() => {
             removeNotification(id);
+            // ลบ key ออกจากชุดที่แสดงแล้วหลังจากเวลาผ่านไป
+            setShownNotificationKeys(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(notificationKey);
+                return newSet;
+            });
         }, duration);
         
         return id;
@@ -78,6 +98,7 @@ export const NotificationProvider = ({ children }) => {
     // ฟังก์ชันลบการแจ้งเตือนทั้งหมด
     const clearNotifications = () => {
         setNotifications([]);
+        setShownNotificationKeys(new Set());
     };
 
     return (

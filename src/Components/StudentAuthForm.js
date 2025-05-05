@@ -1,12 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './StudentAuthForm.css';
 import { useNotification } from '../contexts/NotificationContext';
+import { AuthContext } from '../contexts/AuthContext';
 
 const StudentAuthForm = () => {
     const navigate = useNavigate();
     const { addNotification } = useNotification();
+    const { customLogin } = useContext(AuthContext);
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         student_id: '',
@@ -88,6 +90,7 @@ const StudentAuthForm = () => {
                 if (isLogin) {
                     // เก็บข้อมูลนักเรียนใน localStorage
                     localStorage.setItem('student', JSON.stringify(response.data.data));
+                    customLogin(response.data.data);
                     setMessage('เข้าสู่ระบบสำเร็จ! กำลังนำคุณไปยังหน้าถัดไป...');
                     
                     // รอสักครู่แล้วนำทางไปหน้า dashboard
@@ -110,21 +113,59 @@ const StudentAuthForm = () => {
                         }, 3000);
                     }
                 } else {
-                    setMessage('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ');
-                    // รีเซ็ตฟอร์มและเปลี่ยนไปหน้า login
-                    setTimeout(() => {
-                        setIsLogin(true);
-                        setFormData({
-                            student_id: '',
-                            first_name: '',
-                            last_name: '',
-                            email: '',
-                            password: '',
-                            confirmPassword: '',
-                            classroom: '',
-                            age: ''
+                    // สมัครสมาชิกสำเร็จ → login อัตโนมัติ
+                    // ส่ง request login ทันที
+                    try {
+                        const loginResponse = await axios.post('student_login.php', {
+                            email: formData.email,
+                            password: formData.password
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            baseURL: 'http://mgt2.pnu.ac.th/kong/app-game/'
                         });
-                    }, 1500);
+
+                        if (loginResponse.data.success) {
+                            localStorage.setItem('student', JSON.stringify(loginResponse.data.data));
+                            customLogin(loginResponse.data.data);
+                            setMessage('ลงทะเบียนและเข้าสู่ระบบสำเร็จ! กำลังนำคุณไปยังหน้าถัดไป...');
+                            setTimeout(() => {
+                                navigate('/student-dashboard');
+                            }, 1500);
+                        } else {
+                            setMessage('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ');
+                            setTimeout(() => {
+                                setIsLogin(true);
+                                setFormData({
+                                    student_id: '',
+                                    first_name: '',
+                                    last_name: '',
+                                    email: '',
+                                    password: '',
+                                    confirmPassword: '',
+                                    classroom: '',
+                                    age: ''
+                                });
+                            }, 1500);
+                        }
+                    } catch (e) {
+                        setMessage('ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ');
+                        setTimeout(() => {
+                            setIsLogin(true);
+                            setFormData({
+                                student_id: '',
+                                first_name: '',
+                                last_name: '',
+                                email: '',
+                                password: '',
+                                confirmPassword: '',
+                                classroom: '',
+                                age: ''
+                            });
+                        }, 1500);
+                    }
                 }
             } else {
                 setMessage(response.data.message);

@@ -5,6 +5,7 @@ import './Notification.css';
 const Notification = () => {
     const { notifications, removeNotification } = useNotification();
     const [animatingIds, setAnimatingIds] = useState([]);
+    const [shownNotifications, setShownNotifications] = useState(new Set());
 
     // จัดการการ Animate ออกก่อนลบ
     const handleRemove = (id) => {
@@ -14,6 +15,12 @@ const Notification = () => {
         setTimeout(() => {
             removeNotification(id);
             setAnimatingIds((prev) => prev.filter((animId) => animId !== id));
+            // ลบ ID ออกจากชุดที่แสดงแล้ว
+            setShownNotifications((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(id);
+                return newSet;
+            });
         }, 300);
     };
 
@@ -33,13 +40,22 @@ const Notification = () => {
         }
     };
 
-    if (notifications.length === 0) {
+    // กรองเฉพาะการแจ้งเตือนที่ยังไม่เคยแสดง
+    const uniqueNotifications = notifications.filter(notification => {
+        if (shownNotifications.has(notification.id)) {
+            return false;
+        }
+        setShownNotifications(prev => new Set([...prev, notification.id]));
+        return true;
+    });
+
+    if (uniqueNotifications.length === 0) {
         return null;
     }
 
     return (
         <div className="notification-container">
-            {notifications.map((notification) => (
+            {uniqueNotifications.map((notification) => (
                 <div 
                     key={notification.id} 
                     className={`notification-item ${notification.type} ${

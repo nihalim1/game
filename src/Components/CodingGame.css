@@ -94,10 +94,10 @@
 }
 
 .grid-cell.path {
-    background: linear-gradient(45deg, #e3f2fd 25%, #bbdefb 25%, #bbdefb 50%, #e3f2fd 50%, #e3f2fd 75%, #bbdefb 75%);
-    background-size: 20px 20px;
-    animation: pathAnimation 2s linear infinite;
-    border: 1px solid #90caf9;
+    background: linear-gradient(135deg, #4fc3f7 60%, #81d4fa 100%);
+    border: 2.5px solid #0288d1;
+    box-shadow: 0 0 12px 2px #4fc3f7, 0 0 0 2px #0288d1 inset;
+    animation: pathGlow 2s linear infinite;
 }
 
 .grid-cell.empty {
@@ -119,13 +119,10 @@
     font-size: 20px;
 }
 
-@keyframes pathAnimation {
-    from {
-        background-position: 0 0;
-    }
-    to {
-        background-position: 40px 40px;
-    }
+@keyframes pathGlow {
+    0% { box-shadow: 0 0 12px 2px #4fc3f7, 0 0 0 2px #0288d1 inset; }
+    50% { box-shadow: 0 0 24px 6px #81d4fa, 0 0 0 2px #0288d1 inset; }
+    100% { box-shadow: 0 0 12px 2px #4fc3f7, 0 0 0 2px #0288d1 inset; }
 }
 
 .character {

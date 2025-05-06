@@ -72,22 +72,26 @@ const CodingGame = ({ onMount, onUnmount }) => {
                                 newPosition.y += CELL_SIZE;
                                 break;
                         }
-                        
                         // ตรวจสอบการชนกับอุปสรรค
                         const collided = obstacles.some(obstacle => 
                             obstacle.x === newPosition.x && obstacle.y === newPosition.y
                         );
-                        
                         // ตรวจสอบว่าอยู่นอกกริดหรือไม่
                         const outOfBounds = 
                             newPosition.x < 0 || 
                             newPosition.x >= GRID_SIZE * CELL_SIZE || 
                             newPosition.y < 0 || 
                             newPosition.y >= GRID_SIZE * CELL_SIZE;
-                        
-                        if (collided || outOfBounds) {
+                        // ตรวจสอบว่าอยู่บน path หรือไม่
+                        const gridX = newPosition.x / CELL_SIZE;
+                        const gridY = newPosition.y / CELL_SIZE;
+                        let notOnPath = false;
+                        if (!outOfBounds && grid[gridY] && grid[gridY][gridX] !== 'path') {
+                            notOnPath = true;
+                        }
+                        if (collided || outOfBounds || notOnPath) {
                             hasCollided = true;
-                            console.error('ชนกับอุปสรรคหรือออกนอกเส้นทาง');
+                            playSound('wrong.mp3');
                             setTimeout(() => {
                                 setIsRunning(false);
                                 setCommands([]);
@@ -96,7 +100,6 @@ const CodingGame = ({ onMount, onUnmount }) => {
                             }, 500);
                             return;
                         }
-                        
                         currentPosition = newPosition;
                         setCharacterPosition({ ...currentPosition });
                         break;
@@ -327,6 +330,7 @@ const CodingGame = ({ onMount, onUnmount }) => {
                     setLevelDescription('ด่านที่ 2: ทางเลี้ยวขวา');
                     setLevelHint('ใช้คำสั่ง "เดินหน้า" และ "หันขวา" เพื่อเลี้ยวขวาและไปถึงเป้าหมาย');
                     
+                    // เส้นทางหลัก
                     for(let i = 0; i < 3; i++) {
                         newGrid[3][i] = 'path';
                     }
@@ -334,52 +338,60 @@ const CodingGame = ({ onMount, onUnmount }) => {
                         newGrid[i][2] = 'path';
                     }
                     setTargetPosition({ x: 2 * CELL_SIZE, y: 5 * CELL_SIZE });
+                    // เส้นทางหลอก
+                    for(let j = 0; j < 5; j++) {
+                        newGrid[5][j] = 'path'; // แนวนอนล่างสุด
+                    }
+                    for(let i = 4; i < 6; i++) {
+                        newGrid[i][4] = 'path'; // ทางตันแนวตั้ง
+                    }
                     break;
                 
                 case 3:
                     setLevelDescription('ด่านที่ 3: เขาวงกตเบื้องต้น');
                     setLevelHint('คุณต้องเดินตามเส้นทางที่กำหนดและหลบอุปสรรค');
-                    
-                    for(let i = 0; i < 5; i++) {
-                        newGrid[i][3] = 'path';
-                    }
-                    for(let i = 3; i < 7; i++) {
-                        newGrid[4][i] = 'path';
-                    }
-                    
-                    newObstacles.push({ x: 3 * CELL_SIZE, y: 2 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 4 * CELL_SIZE });
-                    
-                    setTargetPosition({ x: 6 * CELL_SIZE, y: 4 * CELL_SIZE });
+                    // เส้นทางหลัก
+                    for(let i=0; i<=4; i++) newGrid[i][0] = 'path'; // (0,0) ถึง (4,0)
+                    for(let j=0; j<=4; j++) newGrid[4][j] = 'path'; // (4,0) ถึง (4,4)
+                    for(let i=1; i<=4; i++) newGrid[i][4] = 'path'; // (1,4) ถึง (4,4)
+                    newGrid[3][1] = 'path';
+                    newGrid[3][2] = 'path';
+                    // เส้นทางหลอก
+                    for(let j=1; j<=3; j++) newGrid[1][j] = 'path'; // แนวนอนบน (1,1)-(1,3)
+                    for(let i=2; i<=3; i++) newGrid[i][2] = 'path'; // ทางตันแนวตั้ง (2,2)-(3,2)
+                    for(let j=2; j<=4; j++) newGrid[2][j] = 'path'; // แนวนอนหลอก (2,2)-(2,4)
+                    // อุปสรรค
+                    newObstacles.push({ x: 2 * CELL_SIZE, y: 3 * CELL_SIZE }); // (2,3)
+                    newObstacles.push({ x: 4 * CELL_SIZE, y: 2 * CELL_SIZE }); // (4,2)
+                    setTargetPosition({ x: 4 * CELL_SIZE, y: 4 * CELL_SIZE });
                     break;
                 
                 case 4:
                     setLevelDescription('ด่านที่ 4: การทดสอบขั้นสูง');
                     setLevelHint('นี่คือบททดสอบสุดท้าย คุณต้องใช้ทุกทักษะที่ได้เรียนรู้มา');
-                    
-                    for(let j = 0; j < 4; j++) {
-                        newGrid[0][j] = 'path';
-                    }
-                    for(let i = 0; i < 7; i++) {
-                        newGrid[i][3] = 'path';
-                    }
-                    for(let j = 3; j < 8; j++) {
-                        newGrid[6][j] = 'path';
-                    }
-                    for(let i = 1; i < 7; i++) {
-                        newGrid[i][5] = 'path';
-                    }
-                    for(let j = 1; j < 6; j++) {
-                        newGrid[1][j] = 'path';
-                    }
-                    
-                    newObstacles.push({ x: 1 * CELL_SIZE, y: 0 });
-                    newObstacles.push({ x: 3 * CELL_SIZE, y: 1 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 1 * CELL_SIZE });
-                    newObstacles.push({ x: 3 * CELL_SIZE, y: 2 * CELL_SIZE });
-                    newObstacles.push({ x: 5 * CELL_SIZE, y: 3 * CELL_SIZE });
-                    
-                    setTargetPosition({ x: 7 * CELL_SIZE, y: 6 * CELL_SIZE });
+                    // เส้นทางหลัก
+                    for(let j=0; j<=3; j++) newGrid[0][j] = 'path'; // (0,0)-(0,3)
+                    for(let i=1; i<=3; i++) newGrid[i][3] = 'path'; // (1,3)-(3,3)
+                    for(let j=3; j<=6; j++) newGrid[3][j] = 'path'; // (3,3)-(3,6)
+                    for(let i=4; i<=7; i++) newGrid[i][6] = 'path'; // (4,6)-(7,6)
+                    newGrid[7][7] = 'path'; // (7,7) เป้าหมาย
+                    // ทางอ้อม obstacle
+                    newGrid[2][4] = 'path';
+                    newGrid[2][5] = 'path';
+                    newGrid[3][5] = 'path';
+                    newGrid[4][5] = 'path';
+                    newGrid[5][5] = 'path';
+                    newGrid[6][5] = 'path';
+                    newGrid[7][5] = 'path';
+                    // เส้นทางหลอก
+                    for(let j=0; j<=2; j++) newGrid[5][j] = 'path'; // แนวนอนล่าง (5,0)-(5,2)
+                    for(let i=5; i<=7; i++) newGrid[i][2] = 'path'; // แนวตั้งหลอก (5,2)-(7,2)
+                    for(let j=3; j<=5; j++) newGrid[6][j] = 'path'; // แนวนอนหลอก (6,3)-(6,5)
+                    // อุปสรรค
+                    newObstacles.push({ x: 4 * CELL_SIZE, y: 4 * CELL_SIZE }); // (4,4)
+                    newObstacles.push({ x: 6 * CELL_SIZE, y: 6 * CELL_SIZE }); // (6,6)
+                    newObstacles.push({ x: 7 * CELL_SIZE, y: 5 * CELL_SIZE }); // (7,5)
+                    setTargetPosition({ x: 7 * CELL_SIZE, y: 7 * CELL_SIZE });
                     break;
                 
                 default:

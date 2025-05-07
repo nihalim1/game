@@ -4,7 +4,6 @@ import Home from './Components/Home';
 import StudentAuthForm from './Components/StudentAuthForm';
 import StudentDashboard from './Components/StudentDashboard';
 import TeacherDashboard from './Components/TeacherDashboard';
-import MatchingGame from './Components/MatchingGame';
 import CodingGame from './Components/CodingGame';
 import Progress from './Components/Progress';
 import BridgeGame from './Components/BridgeGame';
@@ -27,7 +26,7 @@ const NotificationManager = () => {
     '/coding-game',
     '/bridge-game',
     '/math-puzzle',
-    '/mazeGmae'
+    '/MazeGame'
   ];  
 
   const shouldHideNotification = hideNotificationPaths.some(path =>
@@ -76,7 +75,7 @@ function App() {
               />
 
               {/* ระบบเกมและกิจกรรม */}
-              <Route path="/game" element={<MatchingGame />} />
+              
               <Route
                 path="/coding-game"
                 element={

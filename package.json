@@ -2,7 +2,7 @@
   "name": "projectgame",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/kong/game",
+  "homepage": "/kong/projectgame",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",

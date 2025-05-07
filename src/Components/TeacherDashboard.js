@@ -38,31 +38,29 @@ const fetchStudentProgress = async (studentId) => {
     if (!res.ok) throw new Error('Failed to fetch progress');
     const data = await res.json();
     return {
-      matchingGame: data.matchingGame ?? 0,
+      mazeGame: data.mazeGame ?? 0,
       codingGame: data.codingGame ?? 0,
       bridgeGame: data.bridgeGame ?? 0,
       mathPuzzle: data.mathPuzzle ?? 0,
     };
   } catch (e) {
     console.error('Error fetching student progress:', e);
-    return { matchingGame: 0, codingGame: 0, bridgeGame: 0, mathPuzzle: 0 }; // fallback
+    return { mazeGame: 0, codingGame: 0, bridgeGame: 0, mathPuzzle: 0 }; // fallback
   }
 };
 
 const GAME_LABELS = {
-  
   codingGame: { icon: '💻', label: 'โค้ดดิ้ง', category: 'programming', order: 2, enabled: true },
   bridgeGame: { icon: '🌉', label: 'สะพาน', category: 'engineering', order: 3, enabled: true },
   mathPuzzle: { icon: '🔢', label: 'คณิต', category: 'math', order: 4, enabled: true },
-  
+  mazeGame: { icon: '🧩', label: 'เขาวงกต', category: 'memory', order: 1, enabled: true },
 };
 
 const GAME_CATEGORIES = {
-  
   programming: { label: 'เกมโค้ดดิ้ง', icon: '💻' },
   engineering: { label: 'เกมสร้างสะพาน', icon: '⚙️' },
-  math: { label: 'เกม Math Puzzle', icon: '📐' }
-  
+  math: { label: 'เกม Math Puzzle', icon: '📐' },
+  memory: { label: 'เกมเขาวงกต', icon: '🧩' }
 };
 
 const TeacherDashboard = () => {

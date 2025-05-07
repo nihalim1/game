@@ -499,7 +499,7 @@ const CodingGame = ({ onMount, onUnmount }) => {
         if (!backgroundMusic) {
             const music = new Audio(process.env.PUBLIC_URL + '/sounds/MV.mp3');
             music.loop = true;
-            music.volume = 0.1; // ปรับระดับเสียงให้เหมาะสม
+            music.volume = 0.3; // ปรับระดับเสียงให้เหมาะสม
             setBackgroundMusic(music);
             music.play();
             setIsMusicPlaying(true);
@@ -671,16 +671,23 @@ const CodingGame = ({ onMount, onUnmount }) => {
                                 <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: 8, color: '#7c4dff', letterSpacing: 1 }}>
                                     ⭐ ดาวสะสม ⭐
                                 </div>
-                                <div style={{ fontSize: '2.5rem', letterSpacing: 2 }}>
-                                    {Array.from({ length: Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0) }).map((_, i) => (
-                                        <span key={i} style={{ color: '#FFD700', textShadow: '0 0 8px #fff200' }}>★</span>
-                                    ))}
-                                    {Array.from({ length: 16 - Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0) }).map((_, i) => (
-                                        <span key={i + Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0)} style={{ color: '#e0e0e0' }}>★</span>
-                                    ))}
+                                <div className="star-row">
+                                    {(() => {
+                                        const totalStars = Math.min(16, Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0));
+                                        return (
+                                            <>
+                                                {Array.from({ length: totalStars }).map((_, i) => (
+                                                    <span key={i} style={{ color: '#FFD700', textShadow: '0 0 8px #fff200' }}>★</span>
+                                                ))}
+                                                {Array.from({ length: 16 - totalStars }).map((_, i) => (
+                                                    <span key={i + totalStars} style={{ color: '#e0e0e0' }}>★</span>
+                                                ))}
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                                 <div style={{ marginTop: 8, fontSize: '1.1rem', color: '#333' }}>
-                                    {Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0)} / 16 ดาว
+                                    {Math.min(16, Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0))} / 16 ดาว
                                 </div>
                             </div>
                             <div className="used-time-summary" style={{ marginTop: 16 }}>

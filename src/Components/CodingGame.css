@@ -489,3 +489,14 @@
     background-color: #dee2e6;
     transform: translateY(-2px);
 }
+
+.stars-summary .star-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 320px;
+    margin: 0 auto;
+    font-size: 2rem;
+    letter-spacing: 0.2rem;
+    line-height: 1.2;
+}

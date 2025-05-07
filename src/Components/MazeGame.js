@@ -1,716 +1,630 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import './MazeGame.css';
+import { useNavigate } from 'react-router-dom';
 
-export default function MazeGame() {
-  const [gameState, setGameState] = useState({
-    currentLevel: 0,
-    isPlaying: false,
-    gameCompleted: false,
-    startTime: null,
-    endTime: null,
-    scores: [0, 0, 0, 0],
-    playerName: '',
-    leaderboard: JSON.parse(localStorage.getItem('mazeLeaderboard') || '[]'),
-    moveCount: 0,
-    showInstructions: true
-  });
-
-  const [playerPosition, setPlayerPosition] = useState({ x: 0, y: 0 });
-  const [message, setMessage] = useState('');
-  const playerRef = useRef(null);
-  const mazeRef = useRef(null);
-
-  // 4 ระดับเขาวงกต (0: ง่าย, 1: ปานกลาง, 2: ยาก, 3: มาสเตอร์)
-  const levels = [
-    {
-      name: "ด่านที่ 1: เขาวงกตเริ่มต้น",
-      grid: [
-        [0, 0, 1, 0, 0, 0, 0, 0],
-        [1, 0, 1, 0, 1, 1, 1, 0],
-        [1, 0, 0, 0, 0, 0, 1, 0],
-        [1, 1, 1, 1, 1, 0, 1, 0],
-        [1, 0, 0, 0, 0, 0, 1, 0],
-        [1, 0, 1, 1, 1, 1, 1, 0],
-        [1, 0, 0, 0, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 2],
-      ],
-      start: { x: 0, y: 0 },
-      goal: { x: 7, y: 7 },
-      timeLimit: 30,
-    },
-    {
-      name: "ด่านที่ 2: เขาวงกตแห่งความท้าทาย",
-      grid: [
-        [0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-        [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-        [0, 0, 0, 1, 0, 0, 0, 1, 1, 0],
-        [1, 1, 1, 1, 0, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
-        [0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-        [1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
-        [0, 0, 0, 1, 0, 0, 0, 1, 1, 0],
-        [2, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-      ],
-      start: { x: 0, y: 0 },
-      goal: { x: 0, y: 9 },
-      timeLimit: 45,
-    },
-    {
-      name: "ด่านที่ 3: เขาวงกตยอดปัญญา",
-      grid: [
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0],
-        [0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0],
-        [0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0],
-        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-        [1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0],
-        [0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
-      ],
-      start: { x: 0, y: 0 },
-      goal: { x: 8, y: 11 },
-      timeLimit: 60,
-    },
-    {
-      name: "ด่านที่ 4: เขาวงกตมาสเตอร์",
-      grid: [
-        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
-        [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-        [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0],
-        [0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0],
-        [0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
-        [0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-      ],
-      start: { x: 0, y: 0 },
-      goal: { x: 14, y: 14 },
-      timeLimit: 90,
-    },
-  ];
-
-  // คำนวณคะแนนเมื่อเล่นจบด่าน
-  const calculateScore = (time, moveCount, levelIndex) => {
-    const level = levels[levelIndex];
-    const timeBonus = Math.max(0, level.timeLimit - time);
-    const moveEfficiency = level.grid.length * level.grid[0].length / moveCount;
-    return Math.floor((timeBonus * 10 + moveEfficiency * 100) * (levelIndex + 1));
-  };
-
-  // เริ่มเกม
-  const startGame = () => {
-    if (!gameState.playerName.trim()) {
-      setMessage("กรุณาใส่ชื่อผู้เล่นก่อนเริ่มเกม");
-      return;
-    }
+const MazeGame = ({ onMount, onUnmount }) => {
+    const navigate = useNavigate();
+    const [currentLevel, setCurrentLevel] = useState(1);
+    const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
+    const [targetPosition, setTargetPosition] = useState({ x: 0, y: 0 });
+    const [grid, setGrid] = useState([]);
+    const [score, setScore] = useState(0);
+    const [totalScore, setTotalScore] = useState(0);
+    const [starsPerLevel, setStarsPerLevel] = useState({});
+    const [showGameComplete, setShowGameComplete] = useState(false);
+    const [levelDescription, setLevelDescription] = useState('');
+    const [showHint, setShowHint] = useState(false);
+    const [levelHint, setLevelHint] = useState('');
+    const [backgroundMusic, setBackgroundMusic] = useState(null);
+    const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [timerInterval, setTimerInterval] = useState(null);
+    const [usedTimePerLevel, setUsedTimePerLevel] = useState({});
+    const [movesCount, setMovesCount] = useState(0);
     
-    const currentLevel = levels[gameState.currentLevel];
-    setPlayerPosition({ ...currentLevel.start });
-    setGameState({
-      ...gameState,
-      isPlaying: true,
-      startTime: Date.now(),
-      endTime: null,
-      moveCount: 0,
-      showInstructions: false
-    });
-    setMessage(`เริ่มเล่น ${currentLevel.name}`);
-  };
+    const GRID_SIZE = 10; // 10x10 grid
+    const CELL_SIZE = 40; // 40px per cell
 
-  // จัดการการเคลื่อนที่
-  const handleKeyDown = (e) => {
-    if (!gameState.isPlaying) return;
-
-    e.preventDefault();
-    
-    const level = levels[gameState.currentLevel];
-    const grid = level.grid;
-    let newX = playerPosition.x;
-    let newY = playerPosition.y;
-
-    switch (e.key) {
-      case 'ArrowUp':
-        newY = Math.max(0, playerPosition.y - 1);
-        break;
-      case 'ArrowDown':
-        newY = Math.min(grid.length - 1, playerPosition.y + 1);
-        break;
-      case 'ArrowLeft':
-        newX = Math.max(0, playerPosition.x - 1);
-        break;
-      case 'ArrowRight':
-        newX = Math.min(grid[0].length - 1, playerPosition.x + 1);
-        break;
-      default:
-        return;
-    }
-
-    // ตรวจสอบว่าช่องใหม่ไม่ใช่กำแพง
-    if (grid[newY][newX] !== 1) {
-      setPlayerPosition({ x: newX, y: newY });
-      setGameState(prev => ({
-        ...prev,
-        moveCount: prev.moveCount + 1
-      }));
-      
-      // ตรวจสอบว่าถึงเป้าหมายหรือไม่
-      if (grid[newY][newX] === 2) {
-        completeLevel();
-      }
-    }
-  };
-
-  // จัดการเมื่อเล่นจบด่าน
-  const completeLevel = () => {
-    const endTime = Date.now();
-    const timeElapsed = Math.floor((endTime - gameState.startTime) / 1000);
-    const levelScore = calculateScore(timeElapsed, gameState.moveCount, gameState.currentLevel);
-
-    const newScores = [...gameState.scores];
-    newScores[gameState.currentLevel] = levelScore;
-
-    if (gameState.currentLevel === levels.length - 1) {
-      // เล่นครบทุกด่านแล้ว
-      const totalScore = newScores.reduce((sum, score) => sum + score, 0);
-      const newLeaderboard = [...gameState.leaderboard, {
-        name: gameState.playerName,
-        score: totalScore,
-        date: new Date().toLocaleDateString()
-      }].sort((a, b) => b.score - a.score).slice(0, 10);
-      
-      localStorage.setItem('mazeLeaderboard', JSON.stringify(newLeaderboard));
-      
-      setGameState({
-        ...gameState,
-        isPlaying: false,
-        gameCompleted: true,
-        scores: newScores,
-        endTime,
-        leaderboard: newLeaderboard
-      });
-      
-      setMessage(`ยินดีด้วย! คุณผ่านทุกด่านแล้ว คะแนนรวม: ${totalScore}`);
-    } else {
-      // ไปด่านต่อไป
-      const nextLevel = gameState.currentLevel + 1;
-      setMessage(`ยอดเยี่ยม! คุณผ่านด่านที่ ${gameState.currentLevel + 1} ด้วยคะแนน ${levelScore} แต้ม`);
-      
-      setGameState({
-        ...gameState,
-        currentLevel: nextLevel,
-        isPlaying: false,
-        scores: newScores,
-        endTime
-      });
-    }
-  };
-
-  // ไปด่านต่อไป
-  const nextLevel = () => {
-    const currentLevel = levels[gameState.currentLevel];
-    setPlayerPosition({ ...currentLevel.start });
-    setGameState({
-      ...gameState,
-      isPlaying: true,
-      startTime: Date.now(),
-      endTime: null,
-      moveCount: 0
-    });
-    setMessage(`เริ่มเล่น ${currentLevel.name}`);
-  };
-
-  // เริ่มเกมใหม่
-  const restartGame = () => {
-    setGameState({
-      ...gameState,
-      currentLevel: 0,
-      isPlaying: false,
-      gameCompleted: false,
-      startTime: null,
-      endTime: null,
-      scores: [0, 0, 0, 0],
-      moveCount: 0
-    });
-    setMessage("");
-  };
-
-  // จัดการควบคุมด้วยปุ่มบนหน้าจอ
-  const handleDirectionClick = (direction) => {
-    const keyEvent = { key: direction, preventDefault: () => {} };
-    handleKeyDown(keyEvent);
-  };
-
-  // คำนวณเวลาที่เหลือ
-  const [timeLeft, setTimeLeft] = useState(null);
-  
-  useEffect(() => {
-    const handleKeyPress = (e) => handleKeyDown(e);
-    window.addEventListener('keydown', handleKeyPress);
-    
-    // เพิ่ม focus ให้กับ player element เพื่อให้การควบคุมด้วยคีย์บอร์ดทำงานได้
-    if (playerRef.current) {
-      playerRef.current.focus();
-    }
-    
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
+    const moveCharacter = (direction) => {
+        playSound('click.mp3');
+        let newPosition = { ...characterPosition };
+        
+        switch(direction) {
+            case 'up':
+                newPosition.y -= 1;
+                break;
+            case 'down':
+                newPosition.y += 1;
+                break;
+            case 'left':
+                newPosition.x -= 1;
+                break;
+            case 'right':
+                newPosition.x += 1;
+                break;
+            default:
+                return;
+        }
+        
+        // Check if new position is valid
+        if (isValidMove(newPosition)) {
+            setCharacterPosition(newPosition);
+            setMovesCount(prev => prev + 1);
+            
+            // Check if reached target
+            if (newPosition.x === targetPosition.x && newPosition.y === targetPosition.y) {
+                levelComplete();
+            }
+        } else {
+            playSound('wrong.mp3');
+        }
     };
-  }, [playerPosition, gameState.isPlaying]);
-
-  useEffect(() => {
-    let timer;
-    if (gameState.isPlaying) {
-      timer = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-        const currentTimeLimit = levels[gameState.currentLevel].timeLimit;
-        const remaining = Math.max(0, currentTimeLimit - elapsed);
+    
+    const isValidMove = (position) => {
+        // Check boundaries
+        if (position.x < 0 || position.x >= GRID_SIZE || position.y < 0 || position.y >= GRID_SIZE) {
+            return false;
+        }
         
-        setTimeLeft(remaining);
+        // Check if the cell is a wall
+        return grid[position.y][position.x] !== 'wall';
+    };
+    
+    const levelComplete = () => {
+        playSound('level_complete.mp3');
+        // Stop timer
+        if (timerInterval) clearInterval(timerInterval);
+        setTimerInterval(null);
         
-        if (remaining <= 0) {
-          clearInterval(timer);
-          setMessage("หมดเวลา! ลองใหม่อีกครั้ง");
-          setGameState(prev => ({
+        // Calculate score and stars
+        const levelScore = calculateScore(movesCount, currentLevel);
+        const newScore = score + levelScore;
+        const newTotalScore = totalScore + levelScore;
+        
+        // Save time used for this level
+        const usedTime = elapsedTime;
+        setUsedTimePerLevel(prev => ({ ...prev, [currentLevel]: usedTime }));
+        
+        // Calculate stars based on time and moves
+        const earnedStars = calculateStars(usedTime, movesCount, currentLevel);
+        setStarsPerLevel(prev => ({
             ...prev,
-            isPlaying: false
-          }));
+            [currentLevel]: earnedStars
+        }));
+        
+        setScore(newScore);
+        setTotalScore(newTotalScore);
+        saveProgress(currentLevel);
+        
+        if (currentLevel < 4) {
+            setTimeout(() => {
+                setCurrentLevel(currentLevel + 1);
+                setMovesCount(0);
+            }, 1000);
+        } else {
+            stopBackgroundMusic();
+            playSound('victory_music.mp3');
+            setShowGameComplete(true);
         }
-      }, 1000);
-    }
-    
-    return () => {
-      if (timer) clearInterval(timer);
     };
-  }, [gameState.isPlaying, gameState.startTime]);
-
-  const renderMaze = () => {
-    if (!gameState.isPlaying && !gameState.endTime) return null;
-
-    const level = levels[gameState.currentLevel];
-    const grid = level.grid;
     
-    return (
-      <div className="maze-container" ref={mazeRef}>
-        {grid.map((row, rowIndex) => (
-          <div key={rowIndex} className="maze-row">
-            {row.map((cell, colIndex) => {
-              let cellClass = "maze-cell";
-              if (cell === 1) cellClass += " wall";
-              if (cell === 2) cellClass += " goal";
-              if (playerPosition.x === colIndex && playerPosition.y === rowIndex)
-                cellClass += " player";
-                
-              return <div key={colIndex} className={cellClass} />;
-            })}
-          </div>
-        ))}
-        <div 
-          className="player" 
-          style={{ 
-            left: `${playerPosition.x * 30}px`,
-            top: `${playerPosition.y * 30}px`
-          }}
-          ref={playerRef}
-          tabIndex={0}
-        />
-      </div>
-    );
-  };
-
-  const renderControls = () => {
-    if (!gameState.isPlaying) return null;
+    const calculateScore = (moves, level) => {
+        // Base score 100, minus penalties for excess moves
+        const optimalMoves = getOptimalMoves(level);
+        const penalty = Math.max(0, moves - optimalMoves) * 5;
+        return Math.max(100 - penalty, 50); // Minimum score is 50
+    };
     
-    return (
-      <div className="controls">
-        <div className="direction-pad">
-          <button onClick={() => handleDirectionClick('ArrowUp')} className="direction-button up">
-            ↑
-          </button>
-          <div className="horizontal-buttons">
-            <button onClick={() => handleDirectionClick('ArrowLeft')} className="direction-button left">
-              ←
-            </button>
-            <button onClick={() => handleDirectionClick('ArrowRight')} className="direction-button right">
-              →
-            </button>
-          </div>
-          <button onClick={() => handleDirectionClick('ArrowDown')} className="direction-button down">
-            ↓
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  const renderGameInfo = () => {
-    if (!gameState.isPlaying && !gameState.endTime) return null;
-    
-    return (
-      <div className="game-info">
-        <div className="level-info">ด่านที่: {gameState.currentLevel + 1}/4</div>
-        <div className="time-info">เวลา: {timeLeft !== null ? timeLeft : '--'} วินาที</div>
-        <div className="moves-info">จำนวนก้าว: {gameState.moveCount}</div>
-      </div>
-    );
-  };
-
-  const renderLevelComplete = () => {
-    if (gameState.isPlaying || !gameState.endTime || gameState.gameCompleted) return null;
-    
-    const timeElapsed = Math.floor((gameState.endTime - gameState.startTime) / 1000);
-    
-    return (
-      <div className="level-complete">
-        <h2>ผ่านด่านที่ {gameState.currentLevel + 1} แล้ว!</h2>
-        <p>เวลาที่ใช้: {timeElapsed} วินาที</p>
-        <p>จำนวนก้าว: {gameState.moveCount}</p>
-        <p>คะแนน: {gameState.scores[gameState.currentLevel]}</p>
-        <button onClick={nextLevel} className="next-button">
-          ไปด่านที่ {gameState.currentLevel + 2}
-        </button>
-      </div>
-    );
-  };
-  
-  const renderGameComplete = () => {
-    if (!gameState.gameCompleted) return null;
-    
-    const totalScore = gameState.scores.reduce((sum, score) => sum + score, 0);
-    
-    return (
-      <div className="game-complete">
-        <h2>ยินดีด้วย! คุณเล่นผ่านทั้งหมดแล้ว</h2>
-        <h3>ผลคะแนนของคุณ: {gameState.playerName}</h3>
-        {levels.map((level, index) => (
-          <div key={index} className="level-score">
-            <span>ด่านที่ {index + 1}: {gameState.scores[index]} แต้ม</span>
-          </div>
-        ))}
-        <div className="total-score">คะแนนรวม: {totalScore}</div>
+    const calculateStars = (timeUsed, moves, level) => {
+        const optimalMoves = getOptimalMoves(level);
+        const optimalTime = getOptimalTime(level);
         
-        <h3>อันดับสูงสุด</h3>
-        <div className="leaderboard">
-          {gameState.leaderboard.map((entry, index) => (
-            <div key={index} className="leaderboard-entry">
-              <span>{index + 1}. {entry.name} - {entry.score} แต้ม ({entry.date})</span>
+        // Calculate efficiency based on moves and time
+        const moveEfficiency = optimalMoves / moves;
+        const timeEfficiency = optimalTime / timeUsed;
+        const totalEfficiency = (moveEfficiency + timeEfficiency) / 2;
+        
+        if (totalEfficiency >= 0.9) return 4; // Near perfect
+        if (totalEfficiency >= 0.7) return 3; // Very good
+        if (totalEfficiency >= 0.5) return 2; // Good
+        return 1; // Completed
+    };
+    
+    const getOptimalMoves = (level) => {
+        switch(level) {
+            case 1: return 10;
+            case 2: return 15;
+            case 3: return 20;
+            case 4: return 30;
+            default: return 10;
+        }
+    };
+    
+    const getOptimalTime = (level) => {
+        switch(level) {
+            case 1: return 30; // seconds
+            case 2: return 45;
+            case 3: return 60;
+            case 4: return 90;
+            default: return 30;
+        }
+    };
+    
+    const resetGame = () => {
+        playSound('button.mp3');
+        setMovesCount(0);
+        setCharacterPosition(getStartingPosition(currentLevel));
+        if (timerInterval) clearInterval(timerInterval);
+        setTimerInterval(null);
+        setElapsedTime(0);
+        
+        // Restart timer
+        const interval = setInterval(() => {
+            setElapsedTime(prev => prev + 1);
+        }, 1000);
+        setTimerInterval(interval);
+    };
+    
+    const getStartingPosition = (level) => {
+        switch(level) {
+            case 1: return { x: 0, y: 0 };
+            case 2: return { x: 0, y: 0 };
+            case 3: return { x: 0, y: 0 };
+            case 4: return { x: 0, y: 0 };
+            default: return { x: 0, y: 0 };
+        }
+    };
+    
+    const saveProgress = (level) => {
+        const student = JSON.parse(localStorage.getItem('student') || '{}');
+        const studentId = student.id;
+        
+        if (!studentId) {
+            console.warn('ไม่พบรหัสนักเรียน ไม่สามารถบันทึกความก้าวหน้าได้');
+            return;
+        }
+        
+        const savedProgress = localStorage.getItem(`mazeProgress_${studentId}`) || JSON.stringify({
+            totalLevels: 4,
+            completedLevels: 0,
+            lastPlayedLevel: 1,
+            achievements: []
+        });
+        
+        const progress = JSON.parse(savedProgress);
+        
+        if (level > progress.completedLevels) {
+            progress.completedLevels = level;
+        }
+        progress.lastPlayedLevel = level + 1;
+        
+        localStorage.setItem(`mazeProgress_${studentId}`, JSON.stringify(progress));
+    };
+    
+    const toggleHint = () => {
+        setShowHint(!showHint);
+    };
+    
+    const saveScoreToServer = async (studentId, gameType, score, stars) => {
+        const formData = new FormData();
+        formData.append('student_id', studentId);
+        formData.append('game_type', gameType);
+        formData.append('score', score);
+        formData.append('stars', stars);
+
+        try {
+            const response = await fetch('http://mgt2.pnu.ac.th/kong/app-game/save_score.php', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            if (!result.success) {
+                console.error('บันทึกคะแนนล้มเหลว:', result.message);
+            }
+        } catch (error) {
+            console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
+        }
+    };
+    
+    useEffect(() => {
+        const createMaze = (level) => {
+            // Initialize empty grid
+            const newGrid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill('path'));
+            
+            switch(level) {
+                case 1:
+                    setLevelDescription('ด่านที่ 1: เขาวงกตง่าย');
+                    setLevelHint('ใช้ปุ่มลูกศรเพื่อเดินไปยังเป้าหมาย หลีกเลี่ยงกำแพง');
+                    
+                    // Add walls for level 1 (simple maze)
+                    for (let i = 2; i < 8; i++) newGrid[1][i] = 'wall';
+                    for (let i = 1; i < 7; i++) newGrid[3][i] = 'wall';
+                    for (let i = 3; i < 9; i++) newGrid[5][i] = 'wall';
+                    for (let i = 2; i < 6; i++) newGrid[7][i] = 'wall';
+                    for (let i = 0; i < 5; i++) newGrid[i][9] = 'wall';
+                    
+                    setTargetPosition({ x: 9, y: 9 });
+                    break;
+                    
+                case 2:
+                    setLevelDescription('ด่านที่ 2: เขาวงกตปานกลาง');
+                    setLevelHint('เส้นทางอาจซับซ้อนขึ้น ระวังทางตัน');
+                    
+                    // More complex maze
+                    for (let i = 1; i < 9; i += 2) {
+                        for (let j = 0; j < 9; j++) {
+                            if (j !== i) newGrid[i][j] = 'wall';
+                        }
+                    }
+                    for (let i = 2; i < 8; i += 2) {
+                        for (let j = 1; j < 10; j++) {
+                            if (j !== 10-i) newGrid[i][j] = 'wall';
+                        }
+                    }
+                    
+                    setTargetPosition({ x: 9, y: 7 });
+                    break;
+                    
+                case 3:
+                    setLevelDescription('ด่านที่ 3: เขาวงกตซับซ้อน');
+                    setLevelHint('ต้องใช้การวางแผนเส้นทางที่ดี หาทางลัดที่เหมาะสม');
+                    
+                    // Complex maze with more walls and paths
+                    for (let i = 0; i < GRID_SIZE; i++) {
+                        for (let j = 0; j < GRID_SIZE; j++) {
+                            if ((i % 2 === 1 && j % 2 === 1) || 
+                                (i % 3 === 0 && j % 3 === 0)) {
+                                newGrid[i][j] = 'wall';
+                            }
+                        }
+                    }
+                    
+                    // Create paths through the maze
+                    for (let i = 0; i < 5; i++) {
+                        newGrid[i][i*2] = 'path';
+                        newGrid[i*2][GRID_SIZE-i-1] = 'path';
+                    }
+                    for (let i = 5; i < GRID_SIZE; i++) {
+                        newGrid[i][GRID_SIZE-i] = 'path';
+                    }
+                    
+                    setTargetPosition({ x: 9, y: 9 });
+                    break;
+                    
+                case 4:
+                    setLevelDescription('ด่านที่ 4: บททดสอบขั้นสุดท้าย');
+                    setLevelHint('นี่คือบททดสอบสุดท้าย ต้องใช้ทักษะและความอดทนในการหาทางออก');
+                    
+                    // Final complex maze
+                    // Initialize with all walls
+                    for (let i = 0; i < GRID_SIZE; i++) {
+                        for (let j = 0; j < GRID_SIZE; j++) {
+                            newGrid[i][j] = 'wall';
+                        }
+                    }
+                    
+                    // Create maze pattern using recursive backtracking pattern
+                    // For simplicity, we'll just create a predefined pattern
+                    const paths = [
+                        [0,0], [0,1], [0,2], [1,2], [2,2], [2,3], [2,4], [3,4], [4,4],
+                        [4,3], [4,2], [4,1], [4,0], [5,0], [6,0], [6,1], [6,2], [6,3],
+                        [6,4], [6,5], [6,6], [5,6], [4,6], [3,6], [2,6], [2,7], [2,8],
+                        [3,8], [4,8], [5,8], [6,8], [7,8], [8,8], [8,7], [8,6], [8,5],
+                        [8,4], [8,3], [8,2], [8,1], [8,0], [9,0], [9,1], [9,2], [9,3],
+                        [9,4], [9,5], [9,6], [9,7], [9,8], [9,9]
+                    ];
+                    
+                    // Create paths
+                    paths.forEach(([y, x]) => {
+                        newGrid[y][x] = 'path';
+                    });
+                    
+                    setTargetPosition({ x: 9, y: 9 });
+                    break;
+                    
+                default:
+                    setLevelDescription('ด่านทดสอบ');
+                    setLevelHint('เดินไปยังเป้าหมาย');
+                    setTargetPosition({ x: 9, y: 9 });
+            }
+            
+            setGrid(newGrid);
+            setCharacterPosition(getStartingPosition(level));
+        };
+        
+        createMaze(currentLevel);
+        setMovesCount(0);
+    }, [currentLevel, GRID_SIZE]);
+    
+    useEffect(() => {
+        if (onMount) onMount();
+        
+        // Start background music
+        playBackgroundMusic();
+        
+        return () => {
+            if (onUnmount) onUnmount();
+            stopBackgroundMusic();
+        };
+    }, [onMount, onUnmount]);
+    
+    useEffect(() => {
+        if (showGameComplete) {
+            const student = JSON.parse(localStorage.getItem('student') || '{}');
+            const studentId = student.student_id || student.id;
+            if (studentId) {
+                const totalStars = Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0);
+                saveScoreToServer(studentId, 'mazeGame', totalScore, totalStars);
+            }
+        }
+    }, [showGameComplete]);
+    
+    useEffect(() => {
+        setElapsedTime(0);
+        if (timerInterval) clearInterval(timerInterval);
+        if (showGameComplete) return;
+        
+        const interval = setInterval(() => {
+            setElapsedTime(prev => prev + 1);
+        }, 1000);
+        setTimerInterval(interval);
+        
+        return () => {
+            clearInterval(interval);
+            setTimerInterval(null);
+        };
+    }, [currentLevel, showGameComplete]);
+    
+    // Handle keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (showGameComplete) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                    moveCharacter('up');
+                    break;
+                case 'ArrowDown':
+                    moveCharacter('down');
+                    break;
+                case 'ArrowLeft':
+                    moveCharacter('left');
+                    break;
+                case 'ArrowRight':
+                    moveCharacter('right');
+                    break;
+                default:
+                    return;
+            }
+            e.preventDefault();
+        };
+        
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [characterPosition, grid, showGameComplete]);
+    
+    const goToHome = () => {
+        stopBackgroundMusic();
+        playSound('button.mp3');
+        if (timerInterval) clearInterval(timerInterval);
+        setTimerInterval(null);
+        navigate('/student-dashboard');
+    };
+    
+    const playSound = (file) => {
+        const audio = new Audio(process.env.PUBLIC_URL + '/sounds/' + file);
+        audio.play();
+    };
+    
+    const playBackgroundMusic = () => {
+        if (!backgroundMusic) {
+            const music = new Audio(process.env.PUBLIC_URL + '/sounds/MV.mp3');
+            music.loop = true;
+            music.volume = 0.1;
+            setBackgroundMusic(music);
+            music.play();
+            setIsMusicPlaying(true);
+        } else if (!isMusicPlaying) {
+            backgroundMusic.play();
+            setIsMusicPlaying(true);
+        }
+    };
+    
+    const stopBackgroundMusic = () => {
+        if (backgroundMusic && isMusicPlaying) {
+            backgroundMusic.pause();
+            setIsMusicPlaying(false);
+        }
+    };
+    
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+    
+    return (
+        <div className="maze-game">
+            <div className="game-header">
+                <h2>เกมเขาวงกต</h2>
+                <div className="level-info">
+                    <div className="level-indicator">
+                        ด่านที่ {currentLevel} / 4
+                    </div>
+                    <div className="score-display">
+                        คะแนนรวม: {totalScore}
+                    </div>
+                    <div className="moves-display">
+                        จำนวนการเดิน: {movesCount}
+                    </div>
+                    <div className="timer-display" style={{ marginLeft: 16, fontWeight: 'bold', color: elapsedTime > getOptimalTime(currentLevel) ? '#d32f2f' : '#1976d2', fontSize: '1.1rem', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ marginRight: 4 }}>⏱️</span> {formatTime(elapsedTime)}
+                    </div>
+                </div>
+                <div className="level-description">
+                    {levelDescription}
+                </div>
             </div>
-          ))}
-        </div>
-        
-        <button onClick={restartGame} className="restart-button">
-          เล่นใหม่อีกครั้ง
-        </button>
-      </div>
-    );
-  };
 
-  const renderInstructions = () => {
-    if (!gameState.showInstructions) return null;
-    
-    return (
-      <div className="instructions">
-        <h2>คำแนะนำในการเล่น</h2>
-        <p>1. ใช้ปุ่มลูกศร (↑ ↓ ← →) หรือปุ่มบนหน้าจอเพื่อเคลื่อนที่</p>
-        <p>2. หลีกเลี่ยงกำแพง (สีดำ) และหาทางไปยังเป้าหมาย (สีเขียว)</p>
-        <p>3. มีเวลาจำกัดในแต่ละด่าน ยิ่งเร็วยิ่งได้คะแนนมาก</p>
-        <p>4. ยิ่งใช้จำนวนก้าวน้อยยิ่งได้คะแนนมาก</p>
-        <p>5. มีทั้งหมด 4 ด่าน แต่ละด่านจะมีความยากเพิ่มขึ้น</p>
-        <button onClick={() => setGameState({...gameState, showInstructions: false})}>
-          เข้าใจแล้ว
-        </button>
-      </div>
-    );
-  };
+            <div className="game-container">
+                <div className="maze-board" style={{ width: GRID_SIZE * CELL_SIZE + 'px', height: GRID_SIZE * CELL_SIZE + 'px' }}>
+                    {grid.map((row, rowIndex) => (
+                        <div key={rowIndex} className="grid-row">
+                            {row.map((cell, colIndex) => (
+                                <div 
+                                    key={`${rowIndex}-${colIndex}`} 
+                                    className={`grid-cell ${cell}`}
+                                    style={{ width: CELL_SIZE + 'px', height: CELL_SIZE + 'px' }}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                    <div 
+                        className="character"
+                        style={{
+                            left: `${characterPosition.x * CELL_SIZE}px`,
+                            top: `${characterPosition.y * CELL_SIZE}px`,
+                            width: CELL_SIZE + 'px',
+                            height: CELL_SIZE + 'px'
+                        }}
+                    >
+                        👨‍💻
+                    </div>
+                    <div 
+                        className="target"
+                        style={{
+                            left: `${targetPosition.x * CELL_SIZE}px`,
+                            top: `${targetPosition.y * CELL_SIZE}px`,
+                            width: CELL_SIZE + 'px',
+                            height: CELL_SIZE + 'px'
+                        }}
+                    >
+                        🎯
+                    </div>
+                </div>
 
-  return (
-    <div className="game-container">
-      <h1 className="game-title">เกมเขาวงกตท้าทายปัญญา</h1>
-      
-      {renderInstructions()}
-      
-      {!gameState.isPlaying && !gameState.endTime && !gameState.gameCompleted && !gameState.showInstructions && (
-        <div className="start-screen">
-          <input
-            type="text"
-            placeholder="ชื่อผู้เล่น"
-            value={gameState.playerName}
-            onChange={(e) => setGameState({...gameState, playerName: e.target.value})}
-            className="player-name-input"
-          />
-          <button onClick={startGame} className="start-button">
-            เริ่มเกม
-          </button>
-          {message && <div className="message">{message}</div>}
+                <div className="control-panel">
+                    <div className="hint-section">
+                        <button onClick={toggleHint} className="hint-button">
+                            {showHint ? "ซ่อนคำแนะนำ" : "แสดงคำแนะนำ"}
+                        </button>
+                        {showHint && (
+                            <div className="hint-box">
+                                {levelHint}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="movement-controls">
+                        <button 
+                            onClick={() => moveCharacter('up')}
+                            className="direction-btn up"
+                        >
+                            ⬆️
+                        </button>
+                        <div className="horizontal-controls">
+                            <button 
+                                onClick={() => moveCharacter('left')}
+                                className="direction-btn left"
+                            >
+                                ⬅️
+                            </button>
+                            <button 
+                                onClick={() => moveCharacter('right')}
+                                className="direction-btn right"
+                            >
+                                ➡️
+                            </button>
+                        </div>
+                        <button 
+                            onClick={() => moveCharacter('down')}
+                            className="direction-btn down"
+                        >
+                            ⬇️
+                        </button>
+                    </div>
+
+                    <div className="game-buttons">
+                        <button 
+                            onClick={resetGame}
+                            className="reset-button"
+                        >
+                            🔄 รีเซ็ต
+                        </button>
+                        <button 
+                            onClick={goToHome}
+                            className="home-button"
+                        >
+                            🏠 กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {showGameComplete && (
+                <div className="game-complete-modal">
+                    <div className="game-complete-content">
+                        <h2>🏆 ยินดีด้วย! คุณผ่านเกมเขาวงกตแล้ว 🏆</h2>
+                        <div className="game-complete-details">
+                            <p className="complete-score">คะแนนรวมทั้งหมด: <span>{totalScore}</span> คะแนน</p>
+                            <p>คุณผ่านทั้ง 4 ด่านเรียบร้อยแล้ว!</p>
+                            <div className="stars-summary" style={{ textAlign: 'center', margin: '24px 0' }}>
+                                <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: 8, color: '#7c4dff', letterSpacing: 1 }}>
+                                    ⭐ ดาวสะสม ⭐
+                                </div>
+                                <div style={{ fontSize: '2.5rem', letterSpacing: 2 }}>
+                                    {Array.from({ length: Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0) }).map((_, i) => (
+                                        <span key={i} style={{ color: '#FFD700', textShadow: '0 0 8px #fff200' }}>★</span>
+                                    ))}
+                                    {Array.from({ length: 16 - Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0) }).map((_, i) => (
+                                        <span key={i + Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0)} style={{ color: '#e0e0e0' }}>★</span>
+                                    ))}
+                                </div>
+                                <div style={{ marginTop: 8, fontSize: '1.1rem', color: '#333' }}>
+                                    {Object.values(starsPerLevel).reduce((sum, s) => sum + s, 0)} / 16 ดาว
+                                </div>
+                            </div>
+                            <div className="used-time-summary" style={{ marginTop: 16 }}>
+                                <h4>เวลาที่ใช้แต่ละด่าน:</h4>
+                                <ul style={{ textAlign: 'left', display: 'inline-block' }}>
+                                    {Object.entries(usedTimePerLevel).map(([level, time]) => (
+                                        <li key={level}>ด่าน {level}: {formatTime(time)}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <p>ความสามารถในการแก้ปัญหาของคุณยอดเยี่ยมมาก</p>
+                        </div>
+                        <div className="game-complete-buttons">
+                            <button 
+                                onClick={() => {
+                                    setCurrentLevel(1);
+                                    setScore(0);
+                                    setTotalScore(0);
+                                    setShowGameComplete(false);
+                                    setMovesCount(0);
+                                    setCharacterPosition(getStartingPosition(1));
+                                    setElapsedTime(0);
+                                    setUsedTimePerLevel({});
+                                    setStarsPerLevel({});
+                                }}
+                                className="play-again-button"
+                            >
+                                🔄 เล่นใหม่
+                            </button>
+                            <button 
+                                onClick={goToHome}
+                                className="home-button"
+                            >
+                                🏠 กลับหน้าหลัก
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-      
-      {renderGameInfo()}
-      {renderMaze()}
-      {renderControls()}
-      {renderLevelComplete()}
-      {renderGameComplete()}
-      
-      <style jsx>{`
-        .game-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          font-family: 'Kanit', sans-serif;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-          background-color: #f5f5f5;
-          border-radius: 10px;
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .game-title {
-          color: #3949ab;
-          text-align: center;
-          margin-bottom: 20px;
-          font-size: 2rem;
-        }
-        
-        .maze-container {
-          position: relative;
-          background-color: #e0e0e0;
-          border: 2px solid #3949ab;
-          border-radius: 5px;
-          padding: 4px;
-          margin: 10px 0;
-        }
-        
-        .maze-row {
-          display: flex;
-        }
-        
-        .maze-cell {
-          width: 30px;
-          height: 30px;
-          box-sizing: border-box;
-        }
-        
-        .wall {
-          background-color: #212121;
-        }
-        
-        .goal {
-          background-color: #4caf50;
-          animation: pulse 1.5s infinite;
-        }
-        
-        .player {
-          position: absolute;
-          width: 30px;
-          height: 30px;
-          background-color: #f44336;
-          border-radius: 50%;
-          z-index: 10;
-          transition: left 0.1s, top 0.1s;
-          box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-        }
-        
-        .game-info {
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-          padding: 10px;
-          background-color: #e3f2fd;
-          border-radius: 5px;
-          margin-bottom: 10px;
-          font-weight: bold;
-        }
-        
-        .controls {
-          display: flex;
-          justify-content: center;
-          margin-top: 20px;
-          width: 100%;
-        }
-        
-        .direction-pad {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        
-        .horizontal-buttons {
-          display: flex;
-          gap: 20px;
-        }
-        
-        .direction-button {
-          width: 60px;
-          height: 60px;
-          background-color: #3949ab;
-          color: white;
-          border: none;
-          border-radius: 10px;
-          font-size: 24px;
-          cursor: pointer;
-          margin: 5px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          transition: background-color 0.2s;
-        }
-        
-        .direction-button:hover {
-          background-color: #303f9f;
-        }
-        
-        .direction-button:active {
-          background-color: #1a237e;
-          transform: scale(0.95);
-        }
-        
-        .player-name-input {
-          padding: 10px;
-          font-size: 16px;
-          border: 2px solid #3949ab;
-          border-radius: 5px;
-          margin-bottom: 10px;
-          width: 100%;
-          max-width: 300px;
-        }
-        
-        .start-screen {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin: 20px 0;
-        }
-        
-        .start-button, .next-button, .restart-button {
-          padding: 12px 24px;
-          background-color: #4caf50;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          font-size: 18px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          margin: 10px 0;
-        }
-        
-        .start-button:hover, .next-button:hover, .restart-button:hover {
-          background-color: #388e3c;
-        }
-        
-        .level-complete, .game-complete {
-          text-align: center;
-          background-color: rgba(255, 255, 255, 0.9);
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-          margin: 20px 0;
-          width: 100%;
-          max-width: 400px;
-        }
-        
-        .message {
-          color: #e53935;
-          margin-top: 10px;
-          font-weight: bold;
-        }
-        
-        .leaderboard {
-          margin-top: 10px;
-          text-align: left;
-          background-color: #e3f2fd;
-          padding: 10px;
-          border-radius: 5px;
-          max-height: 200px;
-          overflow-y: auto;
-        }
-        
-        .leaderboard-entry {
-          padding: 5px;
-          border-bottom: 1px solid #bbdefb;
-        }
-        
-        .total-score {
-          font-size: 24px;
-          font-weight: bold;
-          color: #3949ab;
-          margin: 15px 0;
-        }
-        
-        .level-score {
-          margin: 5px 0;
-        }
-        
-        .instructions {
-          background-color: rgba(255, 255, 255, 0.95);
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-          margin: 10px 0;
-          max-width: 600px;
-          text-align: left;
-        }
-        
-        .instructions h2 {
-          color: #3949ab;
-          text-align: center;
-          margin-bottom: 15px;
-        }
-        
-        .instructions p {
-          margin: 10px 0;
-          line-height: 1.5;
-        }
-        
-        .instructions button {
-          display: block;
-          margin: 20px auto 0;
-          padding: 10px 20px;
-          background-color: #3949ab;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-        
-        .instructions button:hover {
-          background-color: #303f9f;
-        }
-        
-        @keyframes pulse {
-          0% { opacity: 0.7; }
-          50% { opacity: 1; }
-          100% { opacity: 0.7; }
-        }
-        
-        @media (max-width: 600px) {
-          .game-info {
-            flex-direction: column;
-            align-items: center;
-          }
-          
-          .game-info div {
-            margin: 5px 0;
-          }
-          
-          .direction-button {
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
+    );
+};
+
+export default MazeGame;

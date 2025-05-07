@@ -74,7 +74,9 @@ function AuthForm() {
         {isLogin ? "ยังไม่มีบัญชี? สมัครสมาชิก" : "มีบัญชีแล้ว? เข้าสู่ระบบ"}
       </p>
       {message && <p>{message}</p>}
+      
     </div>
+    
   );
 }
 
